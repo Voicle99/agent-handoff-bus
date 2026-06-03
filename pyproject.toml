@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agent-handoff-bus"
+version = "0.1.0"
+description = "Local-first handoff bus for coordinating AI agents without UI paste or focus stealing."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "agent-handoff-bus contributors" }]
+keywords = ["agents", "handoff", "automation", "sqlite", "local-first", "cli"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Utilities",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/Voicle99/agent-handoff-bus"
+Repository = "https://github.com/Voicle99/agent-handoff-bus"
+Issues = "https://github.com/Voicle99/agent-handoff-bus/issues"
+
+[project.scripts]
+agent-handoff = "agent_handoff_bus.cli:main"
+agent-handoff-auto-reply = "agent_handoff_bus.auto_reply:main"
+agent-handoff-reliable = "agent_handoff_bus.reliable_send:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

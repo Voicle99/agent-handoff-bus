@@ -112,6 +112,13 @@ The server refuses public binds such as `0.0.0.0`.
 
 Use the templates in [`examples/`](examples/). They intentionally contain placeholders; generate user-specific paths locally and do not commit rendered plist files.
 
+
+## Project maintenance
+
+- [Roadmap](ROADMAP.md)
+- [Security policy](SECURITY.md)
+- [Contributing guide](CONTRIBUTING.md)
+
 ## Development checks
 
 ```bash

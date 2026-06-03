@@ -1,15 +1,18 @@
 from __future__ import annotations
 
+import io
+import json
 import os
 import tempfile
 import threading
 import time
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 
 from agent_handoff_bus.auto_reply import process_once
 from agent_handoff_bus.core import CreateInput, ack_handoff, create_handoff, latest_handoff, scan_sensitive
-from agent_handoff_bus.reliable_send import find_receipt
+from agent_handoff_bus.reliable_send import find_receipt, main as reliable_send_main
 
 
 class HandoffBusTests(unittest.TestCase):
@@ -46,6 +49,31 @@ class HandoffBusTests(unittest.TestCase):
         receipt = find_receipt(item["id"], "agent-a")
         self.assertIsNotNone(receipt)
         self.assertEqual(receipt["source_session"], "auto-reply")
+
+    def test_reliable_send_times_out_fail_closed(self) -> None:
+        out = io.StringIO()
+        with redirect_stdout(out):
+            exit_code = reliable_send_main(
+                [
+                    "--from",
+                    "agent-a",
+                    "--to",
+                    "agent-b",
+                    "--title",
+                    "Needs receipt",
+                    "--body",
+                    "No auto-reply worker is running.",
+                    "--timeout",
+                    "0.01",
+                    "--interval",
+                    "0.01",
+                ]
+            )
+        payload = json.loads(out.getvalue())
+        self.assertEqual(exit_code, 3)
+        self.assertEqual(payload["status"], "BLOCKED_NO_AUTO_RECEIPT")
+        self.assertEqual(payload["original_handoff"]["target_session"], "agent-b")
+        self.assertIn("agent-handoff-auto-reply --sessions <receiver-session>", payload["next_checks"])
 
     def test_body_file_written(self) -> None:
         item = create_handoff(CreateInput(target_session="agent-b", title="File", body="content"))

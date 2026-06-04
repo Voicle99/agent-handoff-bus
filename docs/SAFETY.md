@@ -25,6 +25,23 @@ The default sender blocks common secret-like patterns, including:
 
 The scanner is a guardrail, not a guarantee. Keep secrets out of handoff text.
 
+### Scanner limits
+
+Known false-positive cases:
+
+- dummy tokens that intentionally match a real provider shape
+- documentation snippets that show token-like examples
+- redacted incident reports that preserve a token prefix for explanation
+
+Known false-negative cases:
+
+- provider formats not listed above
+- credentials split across several words, lines, or files
+- encoded, compressed, image, binary, or attachment-based secrets
+- natural-language descriptions that reveal sensitive account context without a token pattern
+
+When an auto-receipt sees a secret-like hint in the stored body, it reports `BLOCKED_SECRET_HINT: body not quoted`. Receipts must stay summary-only and must not copy the original handoff body.
+
 ## Local-only transport
 
 - Default state lives under `~/.agent-handoff-bus`.

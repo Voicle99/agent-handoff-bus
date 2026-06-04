@@ -9,7 +9,7 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 - Keep the core dependency-free and standard-library only.
 - [x] Add tests for the localhost HTTP API.
 - [x] Add tests for reliable-send timeout and receipt acknowledgment behavior.
-- Improve secret-like content detection with more fixture coverage.
+- [x] Improve secret-like content detection with more fixture coverage.
 - Add structured examples for common maintainer flows:
   - PR review handoff
   - issue triage handoff

@@ -15,7 +15,7 @@ from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-from agent_handoff_bus.auto_reply import process_once
+from agent_handoff_bus.auto_reply import build_receipt_body, process_once
 from agent_handoff_bus.core import (
     CreateInput,
     HandoffHTTPHandler,
@@ -132,6 +132,38 @@ class HandoffBusTests(unittest.TestCase):
         self.assertIn("openai_api_key", scan_sensitive("sk-" + "a" * 30))
         with self.assertRaises(ValueError):
             create_handoff(CreateInput(target_session="agent-b", title="bad", body="sk-" + "a" * 30))
+
+    def test_secret_scanner_fixture_matrix_uses_fake_values(self) -> None:
+        cases = [
+            ("openai_api_key", "sk-" + "a" * 30),
+            ("github_token", "ghp_" + "a" * 24),
+            ("aws_access_key", "AKIA" + "A" * 16),
+            ("private_key", "-----BEGIN " + "PRIVATE KEY-----\nfake\n-----END " + "PRIVATE KEY-----"),
+            ("bearer_token", "Bearer " + "a" * 24),
+            ("generic_secret_assignment", "api_key=" + "a" * 16),
+        ]
+        for expected, body in cases:
+            with self.subTest(expected=expected):
+                self.assertIn(expected, scan_sensitive(body))
+
+    def test_secret_scanner_does_not_block_short_obvious_placeholders(self) -> None:
+        self.assertEqual(scan_sensitive("password=short token=example api_key=dummy"), [])
+
+    def test_auto_reply_with_secret_hint_never_quotes_original_body(self) -> None:
+        sentinel = "DO_NOT_QUOTE_THIS_SENTINEL"
+        item = create_handoff(
+            CreateInput(
+                target_session="agent-b",
+                source_session="agent-a",
+                title="Sensitive looking body",
+                body=("sk-" + "a" * 30 + f"\n{sentinel}"),
+                allow_sensitive=True,
+            )
+        )
+        receipt_body = build_receipt_body(item)
+        self.assertIn("BLOCKED_SECRET_HINT: body not quoted", receipt_body)
+        self.assertNotIn("sk-" + "a" * 30, receipt_body)
+        self.assertNotIn(sentinel, receipt_body)
 
     def test_auto_reply_receipt(self) -> None:
         item = create_handoff(CreateInput(target_session="agent-b", source_session="agent-a", title="Critical", body="Please receive."))

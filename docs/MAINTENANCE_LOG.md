@@ -58,6 +58,29 @@ Each entry should include:
 - Result: the repository now has a visible maintenance cadence and reusable recipes for PR review, issue triage, release checklist review, and security review.
 - Next action: keep adding only meaningful entries. If a daily check finds no safe improvement, leave the repository untouched and report `SKIP_NO_ACTIONABLE_MAINTENANCE` outside the repo.
 
+## 2026-06-05 — receipt latency and fail-closed benchmark
+
+- Category: maintainer workflow diagnostics
+- Issue: #4, `Add receipt latency and fail-closed benchmark`
+- Changed files:
+  - `tools/receipt_benchmark.py`
+  - `tests/test_core.py`
+  - `README.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `git diff --check`
+  - tracked/untracked high-confidence secret scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: maintainers can now run a local-only benchmark that measures the success path with an auto-reply bridge and confirms the no-receiver path exits with `BLOCKED_NO_AUTO_RECEIPT`.
+- Next action: keep future diagnostics local-first and avoid turning benchmarks into external monitoring or public network checks.
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

@@ -253,6 +253,34 @@ class HandoffBusTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             serve(host="0.0.0.0", port=0, quiet=True)
 
+    def test_receipt_benchmark_script_passes(self) -> None:
+        env = os.environ.copy()
+        env["PYTHONPATH"] = "src"
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/receipt_benchmark.py",
+                "--success-timeout",
+                "2",
+                "--fail-timeout",
+                "0.01",
+                "--interval",
+                "0.01",
+            ],
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS")
+        self.assertEqual([check["status"] for check in payload["checks"]], ["PASS", "PASS"])
+        self.assertEqual(payload["network"], "local-only")
+        self.assertTrue(payload["dummy_data_only"])
+
     def test_body_file_written(self) -> None:
         item = create_handoff(CreateInput(target_session="agent-b", title="File", body="content"))
         path = Path(item["body_path"])

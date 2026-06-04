@@ -128,6 +128,12 @@ python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
 
+Run the local receipt benchmark when changing reliable-send or auto-reply behavior:
+
+```bash
+PYTHONPATH=src python3 tools/receipt_benchmark.py
+```
+
 ## Privacy
 
 Do not put API keys, private tokens, customer data, or private chat transcripts into handoff bodies. The scanner catches common secret patterns but is not a full DLP product.

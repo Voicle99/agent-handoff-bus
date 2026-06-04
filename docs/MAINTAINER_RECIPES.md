@@ -150,3 +150,23 @@ Expected output when no receiver bridge is running:
 ```
 
 Remember: `AUTO-RECEIVED` is delivery proof only. It is not task completion and not permission to perform public actions.
+
+## Receipt benchmark check
+
+When changing reliable-send or auto-reply behavior, run the local benchmark:
+
+```bash
+PYTHONPATH=src python3 tools/receipt_benchmark.py
+```
+
+Expected result:
+
+```json
+{
+  "status": "PASS",
+  "network": "local-only",
+  "dummy_data_only": true
+}
+```
+
+The benchmark uses an isolated temporary `AGENT_HANDOFF_HOME`. It checks both the local success path with an auto-reply bridge and the fail-closed path where no receiver bridge exists.

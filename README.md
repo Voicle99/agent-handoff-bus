@@ -116,6 +116,8 @@ Use the templates in [`examples/`](examples/). They intentionally contain placeh
 ## Project maintenance
 
 - [Roadmap](ROADMAP.md)
+- [Maintenance log](docs/MAINTENANCE_LOG.md)
+- [Maintainer workflow recipes](docs/MAINTAINER_RECIPES.md)
 - [Security policy](SECURITY.md)
 - [Contributing guide](CONTRIBUTING.md)
 

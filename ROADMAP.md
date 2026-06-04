@@ -10,11 +10,11 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 - [x] Add tests for the localhost HTTP API.
 - [x] Add tests for reliable-send timeout and receipt acknowledgment behavior.
 - [x] Improve secret-like content detection with more fixture coverage.
-- Add structured examples for common maintainer flows:
-  - PR review handoff
-  - issue triage handoff
-  - release checklist handoff
-  - security review handoff
+- [x] Add structured examples for common maintainer flows:
+  - [x] PR review handoff
+  - [x] issue triage handoff
+  - [x] release checklist handoff
+  - [x] security review handoff
 
 ## v0.2.x — maintainer workflow recipes
 

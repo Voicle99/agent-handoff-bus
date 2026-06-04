@@ -81,6 +81,27 @@ Each entry should include:
 - Result: maintainers can now run a local-only benchmark that measures the success path with an auto-reply bridge and confirms the no-receiver path exits with `BLOCKED_NO_AUTO_RECEIPT`.
 - Next action: keep future diagnostics local-first and avoid turning benchmarks into external monitoring or public network checks.
 
+## 2026-06-05 — CI-like local operation documentation
+
+- Category: maintainer workflow documentation
+- Issue: #5, `Document CI-like local operation`
+- Changed files:
+  - `docs/MAINTAINER_RECIPES.md`
+  - `README.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `git diff --check`
+  - tracked/untracked/git-metadata high-confidence private and secret scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: maintainers now have a dummy-only local recipe for CI-like dry runs covering isolated bus state, compile checks, tests, receipt benchmarking, private-data scans, Bumblebee, and human-gated public actions.
+- Next action: keep public automation explicit and do not convert local checks into release, package, OAuth, paid, or credential actions.
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

@@ -170,3 +170,58 @@ Expected result:
 ```
 
 The benchmark uses an isolated temporary `AGENT_HANDOFF_HOME`. It checks both the local success path with an auto-reply bridge and the fail-closed path where no receiver bridge exists.
+
+## CI-like local operation
+
+Use this for repeatable local checks, scheduled maintainer dry runs, or a
+developer workstation script that should behave like CI without becoming public
+automation.
+
+Start from a clean checkout and isolate bus state:
+
+```bash
+git status --short --branch
+export AGENT_HANDOFF_HOME="$(mktemp -d)"
+trap 'rm -rf "$AGENT_HANDOFF_HOME"' EXIT
+```
+
+Run the dependency-free local checks:
+
+```bash
+python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py
+PYTHONPATH=src python3 -m unittest discover -s tests -v
+PYTHONPATH=src python3 tools/receipt_benchmark.py
+```
+
+Run private-data and security gates before making anything public:
+
+```bash
+git diff --check
+git ls-files --others --exclude-standard
+# Run your local high-confidence scan over tracked files, untracked candidate
+# files, and git metadata before committing or opening public issues.
+bumblebee version
+bumblebee selftest
+bumblebee scan --root . --emit-summary
+```
+
+Keep examples dummy-only. Do not put real API keys, private tokens, customer
+data, personal paths, private chat transcripts, or account details into the
+repository, local reports, issue comments, or release notes.
+
+Human-gated actions stay human-gated even when every local check passes:
+
+- public issue comments or pull request comments
+- pushes, tags, GitHub releases, or package publication
+- PyPI uploads or package-signing actions
+- OAuth/login/account-permission changes
+- paid APIs, purchases, or hosted-service calls
+- credential access, browser/session scraping, or keyring reads
+
+Expected dry-run result:
+
+```text
+LOCAL_CHECKS_PASS
+Public action: not authorized by local checks alone
+Next action: maintainer reviews the diff and decides whether to push/comment/release
+```

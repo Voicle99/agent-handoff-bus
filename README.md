@@ -134,6 +134,9 @@ Run the local receipt benchmark when changing reliable-send or auto-reply behavi
 PYTHONPATH=src python3 tools/receipt_benchmark.py
 ```
 
+For repeatable local automation or CI-like dry runs, use the workflow in
+[`docs/MAINTAINER_RECIPES.md#ci-like-local-operation`](docs/MAINTAINER_RECIPES.md#ci-like-local-operation).
+
 ## Privacy
 
 Do not put API keys, private tokens, customer data, or private chat transcripts into handoff bodies. The scanner catches common secret patterns but is not a full DLP product.

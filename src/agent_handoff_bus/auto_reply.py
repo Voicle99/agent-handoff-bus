@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import closing
 import json
 import sqlite3
 import time
@@ -82,7 +83,7 @@ def rows_for_sessions(sessions: list[str]) -> list[dict[str, Any]]:
       ORDER BY created_at ASC
       LIMIT 100
     """
-    with sqlite3.connect(db_path()) as con:
+    with closing(sqlite3.connect(db_path())) as con:
         con.row_factory = sqlite3.Row
         return [dict(row) for row in con.execute(sql, sessions).fetchall()]
 

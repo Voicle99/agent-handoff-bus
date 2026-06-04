@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+from contextlib import closing
 import http.server
 import json
 import os
@@ -80,7 +81,7 @@ def ensure_db(home: Path | None = None) -> Path:
     store_dir(home).mkdir(parents=True, exist_ok=True)
     log_dir(home).mkdir(parents=True, exist_ok=True)
     path = db_path(home)
-    with sqlite3.connect(path) as con:
+    with closing(sqlite3.connect(path)) as con:
         con.execute("PRAGMA journal_mode=WAL")
         con.execute(
             """
@@ -206,7 +207,7 @@ def create_handoff(inp: CreateInput) -> dict[str, Any]:
     metadata = inp.metadata or {}
     metadata.setdefault("sensitive_scan_hits", hits)
 
-    with connect(home) as con:
+    with closing(connect(home)) as con:
         con.execute(
             """
             INSERT INTO handoffs(id, schema, created_at, updated_at, source_session, target_session,
@@ -252,14 +253,14 @@ def list_handoffs(target_session: str | None = None, status: str | None = None, 
         params.append(status)
     where = (" WHERE " + " AND ".join(clauses)) if clauses else ""
     params.append(max(1, min(int(limit), 1000)))
-    with connect() as con:
+    with closing(connect()) as con:
         rows = con.execute(f"SELECT * FROM handoffs{where} ORDER BY created_at DESC LIMIT ?", params).fetchall()
     return [row_to_dict(row) for row in rows]
 
 
 def get_handoff(handoff_id: str) -> dict[str, Any] | None:
     ensure_db()
-    with connect() as con:
+    with closing(connect()) as con:
         row = con.execute("SELECT * FROM handoffs WHERE id=?", (handoff_id,)).fetchone()
     return row_to_dict(row) if row else None
 
@@ -272,7 +273,7 @@ def latest_handoff(target_session: str, pending_only: bool = False) -> dict[str,
 def ack_handoff(handoff_id: str, note: str = "") -> dict[str, Any]:
     ensure_db()
     now = utc_now()
-    with connect() as con:
+    with closing(connect()) as con:
         row = con.execute("SELECT * FROM handoffs WHERE id=?", (handoff_id,)).fetchone()
         if not row:
             raise ValueError(f"handoff not found: {handoff_id}")

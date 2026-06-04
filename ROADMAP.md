@@ -7,8 +7,8 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 ## v0.1.x — harden the core
 
 - Keep the core dependency-free and standard-library only.
-- Add tests for the localhost HTTP API.
-- Add tests for reliable-send timeout and receipt acknowledgment behavior.
+- [x] Add tests for the localhost HTTP API.
+- [x] Add tests for reliable-send timeout and receipt acknowledgment behavior.
 - Improve secret-like content detection with more fixture coverage.
 - Add structured examples for common maintainer flows:
   - PR review handoff

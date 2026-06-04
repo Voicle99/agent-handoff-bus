@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+from contextlib import closing
 import json
 import os
 import sqlite3
@@ -30,7 +31,7 @@ def row_to_compact(row: sqlite3.Row) -> dict[str, Any]:
 
 def find_receipt(original_id: str, source_session: str) -> dict[str, Any] | None:
     ensure_db()
-    with sqlite3.connect(db_path()) as con:
+    with closing(sqlite3.connect(db_path())) as con:
         con.row_factory = sqlite3.Row
         rows = con.execute(
             """

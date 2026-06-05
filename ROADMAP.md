@@ -29,6 +29,8 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 ## v0.3.x — adapters and integrations
 
 - Add optional adapter interfaces for local LLM tools without making any cloud provider mandatory.
+  - [x] Document the optional local adapter boundary.
+  - [ ] Add a minimal local adapter dry-run example.
 - Add optional launchd/systemd templates generated from local configuration.
 - Add a stricter policy layer for high-risk handoffs.
 - Explore GitHub issue/PR workflow examples while keeping public writes explicit and human-approved.

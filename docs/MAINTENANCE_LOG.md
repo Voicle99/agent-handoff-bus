@@ -102,6 +102,27 @@ Each entry should include:
 - Result: maintainers now have a dummy-only local recipe for CI-like dry runs covering isolated bus state, compile checks, tests, receipt benchmarking, private-data scans, Bumblebee, and human-gated public actions.
 - Next action: keep public automation explicit and do not convert local checks into release, package, OAuth, paid, or credential actions.
 
+## 2026-06-05 — optional local adapter boundary documentation
+
+- Category: adapter safety design
+- Issue: #6, `Document optional local adapter boundary`
+- Changed files:
+  - `docs/ADAPTERS.md`
+  - `README.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `git diff --check`
+  - tracked/untracked high-confidence secret scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: the repository now documents the optional adapter boundary before any adapter code exists, keeping cloud providers optional and public/paid/OAuth actions human-gated.
+- Next action: if adapter work continues, add a minimal local dry-run example without introducing provider dependencies.
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

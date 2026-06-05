@@ -118,6 +118,7 @@ Use the templates in [`examples/`](examples/). They intentionally contain placeh
 - [Roadmap](ROADMAP.md)
 - [Maintenance log](docs/MAINTENANCE_LOG.md)
 - [Maintainer workflow recipes](docs/MAINTAINER_RECIPES.md)
+- [Optional local adapter boundary](docs/ADAPTERS.md)
 - [Security policy](SECURITY.md)
 - [Contributing guide](CONTRIBUTING.md)
 

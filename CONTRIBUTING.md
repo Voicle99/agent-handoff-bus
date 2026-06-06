@@ -28,6 +28,8 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 
 Before opening a pull request, also check that no personal paths or secret-like values are present in the diff.
 
+GitHub issue forms and the pull request template are intentionally strict. They help first-time contributors provide enough context while keeping real secrets, private logs, account details, and public-action requests out of public artifacts.
+
 ## Pull request guidelines
 
 A good PR should include:
@@ -57,6 +59,7 @@ Suggested labels for future maintenance:
 - `security`
 - `documentation`
 - `good first issue`
+- `good-first-issue`
 - `maintainer-workflow`
 - `release-management`
 

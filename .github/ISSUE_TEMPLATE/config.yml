@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security policy
+    url: https://github.com/Voicle99/agent-handoff-bus/blob/main/SECURITY.md
+    about: Read this before sharing a security-sensitive report. Use sanitized public summaries only.
+  - name: Maintainer recipes
+    url: https://github.com/Voicle99/agent-handoff-bus/blob/main/docs/MAINTAINER_RECIPES.md
+    about: See safe local-first workflows for PR review, issue triage, releases, and security review.

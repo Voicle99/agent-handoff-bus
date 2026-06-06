@@ -1,0 +1,69 @@
+name: Bug report
+description: Report a reproducible local bug without secrets or private logs.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve `agent-handoff-bus`.
+
+        Do **not** paste API keys, private tokens, customer data, browser/session data,
+        private chat transcripts, real account IDs, or personal local paths. Use dummy
+        values and sanitized logs only.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What went wrong?
+      placeholder: The reliable sender returned ... when ...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Use local-only commands and dummy data.
+      placeholder: |
+        1. export AGENT_HANDOFF_HOME="$(mktemp -d)"
+        2. agent-handoff doctor
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Include sanitized output only.
+    validations:
+      required: true
+  - type: dropdown
+    id: touched_area
+    attributes:
+      label: Area
+      options:
+        - CLI commands
+        - Reliable send / auto-receipt
+        - Localhost HTTP API
+        - Secret-like content scanner
+        - Local state / body files
+        - Documentation or examples
+        - Unsure
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety_confirmations
+    attributes:
+      label: Safety confirmations
+      options:
+        - label: I used dummy data or sanitized output only.
+          required: true
+        - label: This issue does not request public posting, publishing, paid API use, OAuth/login changes, or credential access.
+          required: true

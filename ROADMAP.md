@@ -34,6 +34,8 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 - Add optional launchd/systemd templates generated from local configuration.
 - Add a stricter policy layer for high-risk handoffs.
 - Explore GitHub issue/PR workflow examples while keeping public writes explicit and human-approved.
+  - [x] Add contributor-safe issue and PR templates.
+  - [ ] Add a documented GitHub issue/PR dry-run workflow example.
 
 ## Non-goals
 

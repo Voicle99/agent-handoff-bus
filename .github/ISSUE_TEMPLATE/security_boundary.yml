@@ -1,0 +1,59 @@
+name: Security boundary concern
+description: Share a sanitized report about safety boundaries or security-sensitive behavior.
+title: "[Security boundary]: "
+labels: ["security"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        If your report contains real secrets, private logs, customer data, account
+        identifiers, or exploit details that should not be public, do **not** put them
+        in this issue. Use GitHub private vulnerability reporting or the repository
+        security policy when available.
+
+        Public issues should contain sanitized summaries and dummy reproductions only.
+  - type: dropdown
+    id: boundary_area
+    attributes:
+      label: Boundary area
+      options:
+        - Secret-like content scanner
+        - Localhost-only HTTP bind
+        - Receipt vs. completion semantics
+        - ACK behavior
+        - Body-file or local-state handling
+        - Adapter boundary
+        - Public / paid / OAuth / credential action gate
+        - Unsure
+    validations:
+      required: true
+  - type: textarea
+    id: sanitized_summary
+    attributes:
+      label: Sanitized summary
+      description: Explain the concern without real sensitive material.
+    validations:
+      required: true
+  - type: textarea
+    id: dummy_reproduction
+    attributes:
+      label: Dummy reproduction
+      description: Use fake tokens, dummy paths, and local-only commands.
+    validations:
+      required: false
+  - type: textarea
+    id: impact
+    attributes:
+      label: Potential impact
+      description: Could this expose secrets, bind publicly, confuse receipts with completion, or trigger unintended public/paid actions?
+    validations:
+      required: true
+  - type: checkboxes
+    id: public_safety
+    attributes:
+      label: Public safety confirmation
+      options:
+        - label: I have not included real credentials, private logs, private chat transcripts, customer data, or personal local paths.
+          required: true
+        - label: This report uses a sanitized public summary or dummy reproduction.
+          required: true

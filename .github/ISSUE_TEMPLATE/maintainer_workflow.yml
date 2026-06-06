@@ -1,0 +1,56 @@
+name: Maintainer workflow improvement
+description: Propose a small workflow improvement for issue triage, PR review, release prep, or local checks.
+title: "[Workflow]: "
+labels: ["maintainer-workflow"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The best workflow issues are small, testable, and local-first. Prefer changes
+        that make safe maintenance easier without adding provider lock-in or hidden
+        public actions.
+  - type: dropdown
+    id: workflow_type
+    attributes:
+      label: Workflow type
+      options:
+        - Issue triage
+        - Pull request review
+        - Release checklist
+        - Security review
+        - Local CI-like checks
+        - Adapter boundary
+        - Other local maintainer workflow
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What maintainer pain does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: smallest_change
+    attributes:
+      label: Smallest useful change
+      description: What is the minimal safe change that would help?
+    validations:
+      required: true
+  - type: textarea
+    id: validation
+    attributes:
+      label: Suggested validation
+      description: Which local checks should prove it works?
+      placeholder: py_compile, unittest, receipt benchmark, git diff --check, secret/private scan, Bumblebee.
+    validations:
+      required: false
+  - type: checkboxes
+    id: guardrails
+    attributes:
+      label: Guardrails
+      options:
+        - label: This can be implemented without reading credentials, keyrings, browser storage, or private account state.
+          required: true
+        - label: This does not make posting, releases, package publication, email, OAuth, paid APIs, or deployments automatic.
+          required: true

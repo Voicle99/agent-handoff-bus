@@ -1,0 +1,43 @@
+name: Documentation or recipe request
+description: Suggest a docs improvement, example, or maintainer recipe.
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for reader-facing improvements: clearer setup, examples, maintainer
+        recipes, safety explanations, or onboarding notes.
+
+        Please keep examples dummy-only and local-first.
+  - type: textarea
+    id: reader
+    attributes:
+      label: Who is the reader?
+      description: Describe the maintainer, contributor, or operator this would help.
+      placeholder: A first-time maintainer trying to run the receipt benchmark locally.
+    validations:
+      required: true
+  - type: textarea
+    id: current_gap
+    attributes:
+      label: Current gap
+      description: What is hard to understand or missing today?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_change
+    attributes:
+      label: Proposed improvement
+      description: What should the docs or recipe say?
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: Boundary checks
+      options:
+        - label: The example can be written with dummy data only.
+          required: true
+        - label: The improvement keeps public, paid, credential, OAuth, and account actions human-gated.
+          required: true

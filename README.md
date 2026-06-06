@@ -138,6 +138,12 @@ PYTHONPATH=src python3 tools/receipt_benchmark.py
 For repeatable local automation or CI-like dry runs, use the workflow in
 [`docs/MAINTAINER_RECIPES.md#ci-like-local-operation`](docs/MAINTAINER_RECIPES.md#ci-like-local-operation).
 
+Run the dummy local adapter example when exploring adapter boundaries:
+
+```bash
+PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request."
+```
+
 ## Privacy
 
 Do not put API keys, private tokens, customer data, or private chat transcripts into handoff bodies. The scanner catches common secret patterns but is not a full DLP product.

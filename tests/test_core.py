@@ -281,6 +281,59 @@ class HandoffBusTests(unittest.TestCase):
         self.assertEqual(payload["network"], "local-only")
         self.assertTrue(payload["dummy_data_only"])
 
+    def test_local_adapter_dry_run_script_passes_and_writes_summary_only(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/local_adapter_dry_run.py",
+                    "--task-id",
+                    "adapter-test",
+                    "--title",
+                    "Adapter test",
+                    "--body",
+                    "Dummy adapter body that must not be quoted in the artifact.",
+                    "--output-dir",
+                    tmp,
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "PASS")
+            self.assertFalse(payload["public_action_taken"])
+            artifact = Path(payload["artifacts"][0])
+            self.assertTrue(artifact.exists())
+            artifact_text = artifact.read_text(encoding="utf-8")
+            self.assertIn("summary-only", artifact_text)
+            self.assertNotIn("Dummy adapter body", artifact_text)
+
+    def test_local_adapter_dry_run_blocks_secret_like_input(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/local_adapter_dry_run.py",
+                "--body",
+                "sk-" + "a" * 30,
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 3, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "BLOCKED")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertIn("openai_api_key", payload["sensitive_scan_hits"])
+
     def test_body_file_written(self) -> None:
         item = create_handoff(CreateInput(target_session="agent-b", title="File", body="content"))
         path = Path(item["body_path"])

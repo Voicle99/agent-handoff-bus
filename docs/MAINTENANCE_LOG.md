@@ -123,6 +123,30 @@ Each entry should include:
 - Result: the repository now documents the optional adapter boundary before any adapter code exists, keeping cloud providers optional and public/paid/OAuth actions human-gated.
 - Next action: if adapter work continues, add a minimal local dry-run example without introducing provider dependencies.
 
+## 2026-06-06 — minimal local adapter dry-run example
+
+- Category: adapter safety example
+- Issue: #7, `Add minimal local adapter dry-run example`
+- Changed files:
+  - `tools/local_adapter_dry_run.py`
+  - `tests/test_core.py`
+  - `docs/ADAPTERS.md`
+  - `README.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `git diff --check`
+  - tracked/untracked high-confidence secret scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: the repository now includes a runnable local-only adapter dry-run example that returns the documented result shape, writes a summary-only artifact, and blocks secret-like input by default.
+- Next action: keep future adapter work optional and local-first; do not add external providers without an explicit reviewed boundary.
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

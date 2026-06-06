@@ -53,19 +53,28 @@ Result fields:
 
 ## Local dry-run example
 
-A local adapter dry run should look like this:
+Run the bundled dummy adapter with local-only input:
+
+```bash
+PYTHONPATH=src python3 tools/local_adapter_dry_run.py \
+  --task-id example-adapter-run \
+  --title "Adapter boundary smoke" \
+  --body "Dummy local-only request. No credentials. No public action."
+```
+
+Expected shape:
 
 ```json
 {
   "status": "PASS",
-  "summary": "Local dummy adapter processed the handoff body.",
+  "summary": "Local dummy adapter processed the handoff body summary-only.",
   "artifacts": ["/tmp/agent-handoff-bus-example/result.md"],
   "public_action_taken": false,
   "next_action": "Human may inspect the local artifact before any public action."
 }
 ```
 
-The example path above is illustrative. Do not commit user-specific rendered paths or private logs.
+The artifact is summary-only. It records metadata such as body hash and byte count, but it does not quote the original handoff body. The example path above is illustrative; do not commit user-specific rendered paths or private logs.
 
 ## Review checklist
 

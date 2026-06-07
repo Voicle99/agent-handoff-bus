@@ -201,6 +201,35 @@ Each entry should include:
 - Next action: if workflow work continues, consider a tiny local script that validates draft files and exits with `BLOCKED_PUBLIC_ACTION_REQUIRES_APPROVAL` instead of posting.
 
 
+## 2026-06-07 — local public-action draft guard
+
+- Category: community health and public-action safety
+- Issue: #10, `Add local public-action draft guard`
+- Changed files:
+  - `tools/public_action_draft_guard.py`
+  - `tests/test_core.py`
+  - `docs/GITHUB_WORKFLOW_DRY_RUN.md`
+  - `README.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft "$draft_without_approval"` returns `BLOCKED_PUBLIC_ACTION_REQUIRES_APPROVAL`
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft "$draft_with_approval" --approval-text "APPROVED_PUBLIC_ACTION: comment on issue #123 with reviewed draft file"` returns `PASS_PUBLIC_ACTION_READY`
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft "$draft_with_secret_like_data" --approval-text "APPROVED_PUBLIC_ACTION: comment on issue #123 with reviewed draft file"` returns `BLOCKED_PRIVATE_DATA`
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request. No credentials. No public action."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - docs link checks
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: maintainers now have a dependency-free local guard that scans issue/PR/public-action draft files, performs no public action, and fails closed until exact public-action approval is present.
+- Next action: keep the guard local-only; do not wire it to automatic posting, closing, releasing, OAuth, paid APIs, or credential access.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

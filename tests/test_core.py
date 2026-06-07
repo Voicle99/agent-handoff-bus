@@ -334,6 +334,90 @@ class HandoffBusTests(unittest.TestCase):
         self.assertFalse(payload["public_action_taken"])
         self.assertIn("openai_api_key", payload["sensitive_scan_hits"])
 
+    def test_public_action_draft_guard_requires_exact_approval(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            draft = Path(tmp) / "issue-comment.md"
+            draft.write_text(
+                "Dummy public comment draft.\nNo credentials. No public action yet.\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/public_action_draft_guard.py",
+                    "--draft",
+                    str(draft),
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 4, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "BLOCKED_PUBLIC_ACTION_REQUIRES_APPROVAL")
+            self.assertFalse(payload["public_action_taken"])
+
+    def test_public_action_draft_guard_passes_with_specific_approval(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            draft = Path(tmp) / "issue-comment.md"
+            draft.write_text(
+                "Dummy public comment draft.\nValidation: py_compile and unittest pass.\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/public_action_draft_guard.py",
+                    "--draft",
+                    str(draft),
+                    "--approval-text",
+                    "APPROVED_PUBLIC_ACTION: comment on issue #123 with reviewed draft file",
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "PASS_PUBLIC_ACTION_READY")
+            self.assertFalse(payload["public_action_taken"])
+
+    def test_public_action_draft_guard_blocks_secret_or_private_data(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            draft = Path(tmp) / "bad-comment.md"
+            draft.write_text(
+                "Do not post this: sk-" + "a" * 30 + "\nLocal path: /Users/alice/project/private.log\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/public_action_draft_guard.py",
+                    "--draft",
+                    str(draft),
+                    "--approval-text",
+                    "APPROVED_PUBLIC_ACTION: comment on issue #123 with reviewed draft file",
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 3, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "BLOCKED_PRIVATE_DATA")
+            self.assertFalse(payload["public_action_taken"])
+            self.assertIn("openai_api_key", payload["sensitive_scan_hits"])
+            self.assertEqual(payload["private_data_hits"][0]["kind"], "personal_local_path")
+
     def test_body_file_written(self) -> None:
         item = create_handoff(CreateInput(target_session="agent-b", title="File", body="content"))
         path = Path(item["body_path"])

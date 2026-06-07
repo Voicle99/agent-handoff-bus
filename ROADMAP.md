@@ -36,6 +36,7 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 - Explore GitHub issue/PR workflow examples while keeping public writes explicit and human-approved.
   - [x] Add contributor-safe issue and PR templates.
   - [x] Add a documented GitHub issue/PR dry-run workflow example.
+  - [x] Add a local public-action draft guard for issue and PR text.
 
 ## Non-goals
 

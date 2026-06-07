@@ -147,6 +147,37 @@ Looks good, handle it.
 The unsafe wording is too broad. It does not identify the exact action, target,
 or public text.
 
+## Run the local public-action draft guard
+
+Use the guard script to inspect one or more local draft files before any issue,
+PR, or maintainer response is posted. The script performs no network or public
+action.
+
+```bash
+PYTHONPATH=src python3 tools/public_action_draft_guard.py \
+  --draft "$draft_dir/issue-draft.md"
+```
+
+With a clean draft but no exact approval, the expected status is:
+
+```text
+BLOCKED_PUBLIC_ACTION_REQUIRES_APPROVAL
+```
+
+After a human has reviewed the final public text and approved the exact target,
+record that approval separately:
+
+```bash
+PYTHONPATH=src python3 tools/public_action_draft_guard.py \
+  --draft "$draft_dir/reviewed-public-comment.md" \
+  --approval-text "APPROVED_PUBLIC_ACTION: comment on issue #123 with reviewed draft file"
+```
+
+The success status is `PASS_PUBLIC_ACTION_READY`, but it still means no public
+action has been taken. Posting, pushing, closing issues, releases, package
+uploads, OAuth/login changes, paid APIs, and credential access remain separate
+human-approved actions.
+
 ## Suggested validation bundle
 
 For docs or workflow changes:

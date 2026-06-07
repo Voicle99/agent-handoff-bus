@@ -145,6 +145,12 @@ Run the dummy local adapter example when exploring adapter boundaries:
 PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request."
 ```
 
+Guard local issue or PR drafts before any public maintainer action:
+
+```bash
+PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft path/to/local-draft.md
+```
+
 ## Privacy
 
 Do not put API keys, private tokens, customer data, or private chat transcripts into handoff bodies. The scanner catches common secret patterns but is not a full DLP product.

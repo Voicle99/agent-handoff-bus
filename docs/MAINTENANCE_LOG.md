@@ -176,6 +176,31 @@ Each entry should include:
 - Next action: add a documented GitHub issue/PR dry-run workflow example if contributor workflow work continues.
 
 
+## 2026-06-07 — GitHub issue and PR dry-run workflow
+
+- Category: community health and public-action safety
+- Issue: #9, `Document GitHub issue and PR dry-run workflow`
+- Changed files:
+  - `docs/GITHUB_WORKFLOW_DRY_RUN.md`
+  - `README.md`
+  - `CONTRIBUTING.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - issue/workflow documentation reviewed for dummy-only examples and explicit public-action gates
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request. No credentials. No public action."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: maintainers now have a local-first GitHub issue and PR rehearsal flow that drafts public text locally, reviews it via the handoff bus, and blocks public comments, issue creation, pushes, releases, packages, OAuth, paid APIs, and credential access until an exact human approval exists.
+- Next action: if workflow work continues, consider a tiny local script that validates draft files and exits with `BLOCKED_PUBLIC_ACTION_REQUIRES_APPROVAL` instead of posting.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

@@ -30,6 +30,8 @@ Before opening a pull request, also check that no personal paths or secret-like 
 
 GitHub issue forms and the pull request template are intentionally strict. They help first-time contributors provide enough context while keeping real secrets, private logs, account details, and public-action requests out of public artifacts.
 
+Maintainers can rehearse issue triage and PR review locally with the [GitHub issue and PR dry-run workflow](docs/GITHUB_WORKFLOW_DRY_RUN.md) before making any public comment, push, release, or package action.
+
 ## Pull request guidelines
 
 A good PR should include:

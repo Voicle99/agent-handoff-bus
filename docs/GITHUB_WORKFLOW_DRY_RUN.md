@@ -178,6 +178,22 @@ action has been taken. Posting, pushing, closing issues, releases, package
 uploads, OAuth/login changes, paid APIs, and credential access remain separate
 human-approved actions.
 
+## Check high-risk handoff text before execution
+
+Use the handoff policy checker before acting on a handoff that asks for posting,
+commenting, releases, tags, package uploads, OAuth/login changes, paid APIs,
+credential access, or public network exposure:
+
+```bash
+PYTHONPATH=src python3 tools/handoff_policy_check.py \
+  --body-file "$draft_dir/handoff-request.md"
+```
+
+If the request is high-risk, the checker returns
+`BLOCKED_HIGH_RISK_HANDOFF_REQUIRES_APPROVAL` until the exact action and target
+are approved with `APPROVED_HIGH_RISK_HANDOFF:`. This complements the public
+comment/PR draft guard; neither tool posts anything.
+
 ## Suggested validation bundle
 
 For docs or workflow changes:

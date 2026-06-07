@@ -139,6 +139,15 @@ PYTHONPATH=src python3 tools/receipt_benchmark.py
 For repeatable local automation or CI-like dry runs, use the workflow in
 [`docs/MAINTAINER_RECIPES.md#ci-like-local-operation`](docs/MAINTAINER_RECIPES.md#ci-like-local-operation).
 
+Run the local handoff policy checker before executing high-risk handoff requests:
+
+```bash
+PYTHONPATH=src python3 tools/handoff_policy_check.py \
+  --body "Review this local patch. Do not post, release, or access credentials."
+```
+
+High-risk handoffs fail closed until an exact approval is supplied. The checker never performs public, paid, OAuth, or credential actions.
+
 Run the dummy local adapter example when exploring adapter boundaries:
 
 ```bash

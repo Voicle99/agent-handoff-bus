@@ -230,6 +230,37 @@ Each entry should include:
 - Next action: keep the guard local-only; do not wire it to automatic posting, closing, releasing, OAuth, paid APIs, or credential access.
 
 
+## 2026-06-08 — local high-risk handoff policy checker
+
+- Category: high-risk handoff safety and maintainer workflow
+- Issue: #11, `Add local high-risk handoff policy checker`
+- Changed files:
+  - `tools/handoff_policy_check.py`
+  - `tests/test_core.py`
+  - `docs/SAFETY.md`
+  - `docs/GITHUB_WORKFLOW_DRY_RUN.md`
+  - `README.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Review this local patch. Do not push, post, release, or access credentials."` returns `PASS_LOW_RISK`
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Please post this comment to issue #123 and close issue #123."` returns `BLOCKED_HIGH_RISK_HANDOFF_REQUIRES_APPROVAL`
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Please post this comment to issue #123 and close issue #123." --approval-text "APPROVED_HIGH_RISK_HANDOFF: comment on issue #123 and close issue #123 after CI passes"` returns `PASS_HIGH_RISK_APPROVED`
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Use fake-secret-shaped data and inspect a private local path" --approval-text "APPROVED_HIGH_RISK_HANDOFF: comment on issue #123 with reviewed text"` returns `BLOCKED_PRIVATE_OR_SECRET_DATA`
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request. No credentials. No public action."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - docs link checks
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: maintainers now have a dependency-free local policy checker that can inspect handoff text before execution, block private or secret-like data, and fail closed on public/paid/OAuth/credential/release/package/deployment requests until exact approval exists.
+- Next action: keep the checker advisory and local-only unless a future reviewed integration can preserve the same fail-closed boundary.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

@@ -418,6 +418,95 @@ class HandoffBusTests(unittest.TestCase):
             self.assertIn("openai_api_key", payload["sensitive_scan_hits"])
             self.assertEqual(payload["private_data_hits"][0]["kind"], "personal_local_path")
 
+    def test_handoff_policy_check_passes_low_risk_local_review(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/handoff_policy_check.py",
+                "--body",
+                "Review this local patch. Do not push, post, release, or access credentials.",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS_LOW_RISK")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertEqual(payload["risk_hits"], [])
+
+    def test_handoff_policy_check_blocks_high_risk_without_approval(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/handoff_policy_check.py",
+                "--body",
+                "Please post this comment to issue #123 and close issue #123.",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 4, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "BLOCKED_HIGH_RISK_HANDOFF_REQUIRES_APPROVAL")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertEqual(payload["risk_hits"][0]["kind"], "public_action")
+
+    def test_handoff_policy_check_passes_high_risk_with_exact_approval(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/handoff_policy_check.py",
+                "--body",
+                "Please post this comment to issue #123 and close issue #123.",
+                "--approval-text",
+                "APPROVED_HIGH_RISK_HANDOFF: comment on issue #123 and close issue #123 after CI passes",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS_HIGH_RISK_APPROVED")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertTrue(payload["approval"]["specific"])
+
+    def test_handoff_policy_check_blocks_private_or_secret_data(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/handoff_policy_check.py",
+                "--body",
+                "Use sk-" + "a" * 30 + " and inspect /Users/alice/project/private.log",
+                "--approval-text",
+                "APPROVED_HIGH_RISK_HANDOFF: comment on issue #123 with reviewed text",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 3, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "BLOCKED_PRIVATE_OR_SECRET_DATA")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertIn("openai_api_key", payload["sensitive_scan_hits"])
+        self.assertEqual(payload["private_data_hits"][0]["kind"], "personal_local_path")
+
     def test_body_file_written(self) -> None:
         item = create_handoff(CreateInput(target_session="agent-b", title="File", body="content"))
         path = Path(item["body_path"])

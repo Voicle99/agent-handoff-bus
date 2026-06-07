@@ -48,6 +48,26 @@ When an auto-receipt sees a secret-like hint in the stored body, it reports `BLO
 - HTTP API may only bind to `127.0.0.1`, `localhost`, or `::1`.
 - Handoff bodies are normal local markdown files. Protect your filesystem accordingly.
 
+## High-risk handoff policy check
+
+Use the local policy checker before acting on handoffs that may request public,
+paid, OAuth, account, credential, release, package, or deployment actions:
+
+```bash
+PYTHONPATH=src python3 tools/handoff_policy_check.py \
+  --body-file /path/to/local-handoff-draft.md
+```
+
+Expected fail-closed statuses:
+
+- `BLOCKED_PRIVATE_OR_SECRET_DATA`: remove real secrets, private logs, personal paths, account data, or private transcripts.
+- `BLOCKED_HIGH_RISK_HANDOFF_REQUIRES_APPROVAL`: the handoff asks for a high-risk action without exact approval.
+
+Exact approval must start with `APPROVED_HIGH_RISK_HANDOFF:` and name the concrete
+action and target. A passing policy check still performs no public, paid, OAuth,
+credential, release, or package action; it only says the local text is ready for
+a separately approved execution step.
+
 ## Receipt semantics
 
 `AUTO-RECEIVED` means only that a local receiver-side bridge saw the handoff. It is not task completion. It is not permission. It is not an ACK of the original handoff.

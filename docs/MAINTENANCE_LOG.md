@@ -261,6 +261,33 @@ Each entry should include:
 - Next action: keep the checker advisory and local-only unless a future reviewed integration can preserve the same fail-closed boundary.
 
 
+## 2026-06-08 — optional systemd auto-reply template
+
+- Category: local-only workflow tooling and maintainer onboarding
+- Issue: #12, `Add optional systemd auto-reply template`
+- Changed files:
+  - `examples/systemd-auto-reply.service.template`
+  - `README.md`
+  - `ROADMAP.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft <issue-draft> --approval-text "APPROVED_PUBLIC_ACTION: create GitHub issue titled Add optional systemd auto-reply template with reviewed draft file"`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft <clean-systemd-draft> --approval-text "APPROVED_PUBLIC_ACTION: comment on issue #12 with reviewed validation evidence"`
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request. No credentials. No public action."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - docs link checks
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: Linux maintainers now have a dependency-free systemd user-service template matching the existing launchd auto-reply template, with explicit local-only and no-public-action boundaries.
+- Next action: add a renderer only if maintainers report placeholder substitution errors; do not commit rendered service files or user-specific paths.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

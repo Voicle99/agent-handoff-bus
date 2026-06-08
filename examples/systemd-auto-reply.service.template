@@ -1,0 +1,26 @@
+# agent-handoff-bus local auto-reply bridge for systemd user services.
+#
+# Copy this file to:
+#   ~/.config/systemd/user/agent-handoff-auto-reply.service
+# Then replace placeholders locally. Do not commit rendered service files.
+#
+# This service only runs the local auto-receipt bridge. It does not approve,
+# post, publish, release, upload packages, call paid APIs, access credentials,
+# or mark the original task complete.
+
+[Unit]
+Description=agent-handoff-bus local auto-reply bridge
+Documentation=https://github.com/Voicle99/agent-handoff-bus
+After=default.target
+
+[Service]
+Type=simple
+Environment=AGENT_HANDOFF_HOME=%h/.agent-handoff-bus
+ExecStart=${PYTHON_BIN} -m agent_handoff_bus.auto_reply --sessions agent-b --fallback-source agent-a
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

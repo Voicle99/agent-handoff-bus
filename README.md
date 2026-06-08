@@ -108,9 +108,19 @@ The server refuses public binds such as `0.0.0.0`.
 - `AGENT_HANDOFF_HOME`: state directory. Default: `~/.agent-handoff-bus`.
 - `AGENT_HANDOFF_SESSION`: optional default source session for reliable sends.
 
-## macOS launchd
+## Local service templates
 
-Use the templates in [`examples/`](examples/). They intentionally contain placeholders; generate user-specific paths locally and do not commit rendered plist files.
+Use the templates in [`examples/`](examples/) when you want the local auto-reply
+bridge to start from your workstation service manager. They intentionally contain
+placeholders; render user-specific paths locally and do not commit rendered
+service files.
+
+- macOS launchd: [`examples/launchd-auto-reply.plist.template`](examples/launchd-auto-reply.plist.template)
+- Linux systemd user service: [`examples/systemd-auto-reply.service.template`](examples/systemd-auto-reply.service.template)
+
+These templates only run the local auto-receipt bridge. They do not approve,
+post, publish, release, upload packages, call paid APIs, access credentials, or
+mark the original task complete.
 
 
 ## Project maintenance

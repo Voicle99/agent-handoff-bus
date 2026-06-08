@@ -151,6 +151,22 @@ Expected output when no receiver bridge is running:
 
 Remember: `AUTO-RECEIVED` is delivery proof only. It is not task completion and not permission to perform public actions.
 
+## Optional local auto-reply service templates
+
+Use the templates in [`../examples/`](../examples/) only for local workstation
+service managers:
+
+- macOS launchd: [`../examples/launchd-auto-reply.plist.template`](../examples/launchd-auto-reply.plist.template)
+- Linux systemd user service: [`../examples/systemd-auto-reply.service.template`](../examples/systemd-auto-reply.service.template)
+
+Render placeholders such as `${PYTHON_BIN}`, source session, target session, and
+`AGENT_HANDOFF_HOME` locally. Do not commit rendered service files, logs, or
+user-specific paths.
+
+The templates run only the local auto-receipt bridge. They do not approve,
+post, publish, release, upload packages, call paid APIs, access credentials, or
+mark the original task complete.
+
 ## Receipt benchmark check
 
 When changing reliable-send or auto-reply behavior, run the local benchmark:

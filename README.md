@@ -122,6 +122,14 @@ These templates only run the local auto-receipt bridge. They do not approve,
 post, publish, release, upload packages, call paid APIs, access credentials, or
 mark the original task complete.
 
+Before committing service-template changes, run:
+
+```bash
+PYTHONPATH=src python3 tools/service_template_guard.py
+```
+
+The guard blocks rendered service files and user-specific paths under `examples/`.
+
 
 ## Project maintenance
 

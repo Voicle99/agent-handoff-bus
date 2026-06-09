@@ -167,6 +167,15 @@ The templates run only the local auto-receipt bridge. They do not approve,
 post, publish, release, upload packages, call paid APIs, access credentials, or
 mark the original task complete.
 
+Guard template edits before committing them:
+
+```bash
+PYTHONPATH=src python3 tools/service_template_guard.py
+```
+
+Commit only `.template` files. Keep rendered launchd plist and systemd service
+files local to the machine that will run them.
+
 ## Receipt benchmark check
 
 When changing reliable-send or auto-reply behavior, run the local benchmark:

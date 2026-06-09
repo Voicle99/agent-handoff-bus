@@ -288,6 +288,36 @@ Each entry should include:
 - Next action: add a renderer only if maintainers report placeholder substitution errors; do not commit rendered service files or user-specific paths.
 
 
+## 2026-06-09 — local service-template guard
+
+- Category: local-only workflow tooling and template safety
+- Issue: #13, `Add local service template guard`
+- Changed files:
+  - `tools/service_template_guard.py`
+  - `tests/test_core.py`
+  - `README.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/service_template_guard.py` returns `PASS`
+  - rendered/private service fixture returns `FAIL_SERVICE_TEMPLATE_GUARD`
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Review this local patch. Do not push, post, release, or access credentials."`
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft <clean-draft> --approval-text "APPROVED_PUBLIC_ACTION: comment on issue #13 with reviewed validation evidence"`
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request. No credentials. No public action."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - docs link checks
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: maintainers can now validate launchd/systemd example templates before committing changes, keeping rendered service files and user-specific paths out of the public repository.
+- Next action: only add a local renderer if real placeholder substitution errors appear; do not turn template checks into service installation or lifecycle automation.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

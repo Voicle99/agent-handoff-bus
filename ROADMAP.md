@@ -34,6 +34,7 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 - Add optional launchd/systemd templates generated from local configuration.
   - [x] Add a macOS launchd auto-reply template.
   - [x] Add a Linux systemd user-service auto-reply template.
+  - [x] Add a local service-template guard for placeholders and rendered-file leaks.
   - [ ] Add a local renderer only if placeholder substitution becomes error-prone.
 - Add a stricter policy layer for high-risk handoffs.
   - [x] Add a local high-risk handoff policy checker.

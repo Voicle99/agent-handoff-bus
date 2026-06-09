@@ -418,6 +418,63 @@ class HandoffBusTests(unittest.TestCase):
             self.assertIn("openai_api_key", payload["sensitive_scan_hits"])
             self.assertEqual(payload["private_data_hits"][0]["kind"], "personal_local_path")
 
+    def test_service_template_guard_passes_current_examples(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/service_template_guard.py",
+                "--examples-dir",
+                "examples",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS")
+        self.assertFalse(payload["public_action_taken"])
+
+    def test_service_template_guard_blocks_rendered_private_service(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            examples_dir = Path(tmp)
+            (examples_dir / "launchd-auto-reply.plist.template").write_text(
+                "${PYTHON_BIN} ${HOME}/.agent-handoff-bus agent_handoff_bus.auto_reply --sessions --fallback-source",
+                encoding="utf-8",
+            )
+            (examples_dir / "systemd-auto-reply.service.template").write_text(
+                "${PYTHON_BIN} %h/.agent-handoff-bus agent_handoff_bus.auto_reply NoNewPrivileges=true PrivateTmp=true",
+                encoding="utf-8",
+            )
+            (examples_dir / "agent-handoff-auto-reply.service").write_text(
+                "ExecStart=/Users/alice/project/.venv/bin/python -m agent_handoff_bus.auto_reply",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/service_template_guard.py",
+                    "--examples-dir",
+                    str(examples_dir),
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 1, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "FAIL_SERVICE_TEMPLATE_GUARD")
+            self.assertFalse(payload["public_action_taken"])
+            kinds = {finding["kind"] for finding in payload["findings"]}
+            self.assertIn("rendered_service_file", kinds)
+            self.assertIn("macos_user_path", kinds)
+
     def test_handoff_policy_check_passes_low_risk_local_review(self) -> None:
         result = subprocess.run(
             [

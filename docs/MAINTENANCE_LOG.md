@@ -288,6 +288,34 @@ Each entry should include:
 - Next action: add a renderer only if maintainers report placeholder substitution errors; do not commit rendered service files or user-specific paths.
 
 
+## 2026-06-09 — local Markdown link checker
+
+- Category: test/CI reliability and maintainer onboarding
+- Issue: #14, `Add local Markdown link checker`
+- Changed files:
+  - `tools/docs_link_check.py`
+  - `tests/test_core.py`
+  - `.github/workflows/ci.yml`
+  - `README.md`
+  - `CONTRIBUTING.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `docs/GITHUB_WORKFLOW_DRY_RUN.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/docs_link_check.py` returns `PASS`
+  - missing local link and missing heading-anchor fixtures return `FAIL_DOCS_LINK_CHECK`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - docs link checks
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+- Result: docs validation is now a repeatable local and CI gate, so maintainer recipes, README links, and future safety docs fail closed when local paths or heading anchors break.
+- Next action: keep the checker local-only and dependency-free; do not turn docs validation into public posting, release, package, OAuth, paid API, or credential automation.
+
+
 ## 2026-06-09 — local service-template guard
 
 - Category: local-only workflow tooling and template safety

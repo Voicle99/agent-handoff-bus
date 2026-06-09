@@ -18,6 +18,8 @@ jobs:
       - name: Install package
         run: python -m pip install -e .
       - name: Compile
-        run: python -m py_compile src/agent_handoff_bus/*.py tests/*.py
+        run: python -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py
       - name: Test
         run: python -m unittest discover -s tests -v
+      - name: Check docs links
+        run: python tools/docs_link_check.py

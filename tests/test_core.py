@@ -475,6 +475,58 @@ class HandoffBusTests(unittest.TestCase):
             self.assertIn("rendered_service_file", kinds)
             self.assertIn("macos_user_path", kinds)
 
+    def test_docs_link_check_passes_current_docs(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/docs_link_check.py",
+                "--root",
+                ".",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertGreater(payload["checked_links"], 0)
+
+    def test_docs_link_check_blocks_missing_relative_link_and_anchor(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text(
+                "# Demo\n\n[missing](docs/nope.md)\n[bad anchor](docs/guide.md#missing-heading)\n",
+                encoding="utf-8",
+            )
+            (root / "docs").mkdir()
+            (root / "docs" / "guide.md").write_text("# Existing heading\n", encoding="utf-8")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/docs_link_check.py",
+                    "--root",
+                    str(root),
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 1, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "FAIL_DOCS_LINK_CHECK")
+            self.assertFalse(payload["public_action_taken"])
+            kinds = {finding["kind"] for finding in payload["findings"]}
+            self.assertIn("missing_target", kinds)
+            self.assertIn("missing_anchor", kinds)
+
     def test_handoff_policy_check_passes_low_risk_local_review(self) -> None:
         result = subprocess.run(
             [

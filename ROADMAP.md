@@ -25,6 +25,7 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
   - verifying that public/post/publish actions remain human-gated
 - [x] Add a small local benchmark/check script for receipt latency and fail-closed behavior.
 - [x] Add documentation for operating the bus in CI-like local environments.
+- [x] Add a local Markdown link checker and CI gate for docs workflow reliability.
 
 ## v0.3.x — adapters and integrations
 

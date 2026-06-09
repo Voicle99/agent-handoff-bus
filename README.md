@@ -144,8 +144,9 @@ The guard blocks rendered service files and user-specific paths under `examples/
 ## Development checks
 
 ```bash
-python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py
+python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py
 PYTHONPATH=src python3 -m unittest discover -s tests -v
+PYTHONPATH=src python3 tools/docs_link_check.py
 ```
 
 Run the local receipt benchmark when changing reliable-send or auto-reply behavior:
@@ -176,6 +177,12 @@ Guard local issue or PR drafts before any public maintainer action:
 
 ```bash
 PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft path/to/local-draft.md
+```
+
+Check local Markdown links before committing docs changes:
+
+```bash
+PYTHONPATH=src python3 tools/docs_link_check.py
 ```
 
 ## Privacy

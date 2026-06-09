@@ -215,6 +215,7 @@ Run the dependency-free local checks:
 ```bash
 python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py
 PYTHONPATH=src python3 -m unittest discover -s tests -v
+PYTHONPATH=src python3 tools/docs_link_check.py
 PYTHONPATH=src python3 tools/receipt_benchmark.py
 ```
 

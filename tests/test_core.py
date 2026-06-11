@@ -527,6 +527,50 @@ class HandoffBusTests(unittest.TestCase):
             self.assertIn("missing_target", kinds)
             self.assertIn("missing_anchor", kinds)
 
+    def test_release_notes_dry_run_passes_current_repo(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/release_notes_dry_run.py",
+                "--limit",
+                "3",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertGreater(payload["commit_count"], 0)
+        self.assertIn("Draft release notes", payload["markdown"])
+        self.assertIn("Public action: not taken.", payload["markdown"])
+
+    def test_release_notes_dry_run_fails_closed_for_non_git_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/release_notes_dry_run.py",
+                    "--root",
+                    tmp,
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 1, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "FAIL_RELEASE_NOTES_DRY_RUN")
+            self.assertFalse(payload["public_action_taken"])
+
     def test_maintainer_check_passes_selected_current_checks(self) -> None:
         result = subprocess.run(
             [
@@ -538,6 +582,8 @@ class HandoffBusTests(unittest.TestCase):
                 "service_template",
                 "--check",
                 "handoff_policy",
+                "--check",
+                "release_notes",
             ],
             env={**os.environ, "PYTHONPATH": "src"},
             stdout=subprocess.PIPE,
@@ -552,7 +598,7 @@ class HandoffBusTests(unittest.TestCase):
         self.assertFalse(payload["public_action_taken"])
         self.assertEqual(
             [check["name"] for check in payload["checks"]],
-            ["docs_link", "service_template", "handoff_policy"],
+            ["docs_link", "service_template", "handoff_policy", "release_notes"],
         )
 
     def test_maintainer_check_fails_closed_on_broken_docs_link(self) -> None:

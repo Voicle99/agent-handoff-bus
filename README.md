@@ -157,6 +157,14 @@ PYTHONPATH=src python3 tools/maintainer_check.py
 
 The bundle performs no public action. It only reports whether the selected local checks passed.
 
+Draft release notes locally from recent commit summaries:
+
+```bash
+PYTHONPATH=src python3 tools/release_notes_dry_run.py --limit 10
+```
+
+The dry run does not create a release, tag, package upload, or public post.
+
 Run the local receipt benchmark when changing reliable-send or auto-reply behavior:
 
 ```bash

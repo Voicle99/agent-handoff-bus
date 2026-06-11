@@ -380,6 +380,40 @@ Each entry should include:
 - Next action: keep the bundle as an aggregator of local gates; add new checks only when they remain dependency-free, deterministic, and human-gated for public effects.
 
 
+## 2026-06-12 — local release-notes dry run
+
+- Category: release-management dry run and maintainer workflow
+- Issue: #16, `Add local release-notes dry run`
+- Changed files:
+  - `tools/release_notes_dry_run.py`
+  - `tools/maintainer_check.py`
+  - `tests/test_core.py`
+  - `README.md`
+  - `CONTRIBUTING.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/release_notes_dry_run.py --limit 10` returns `PASS`
+  - non-git root fixture returns `FAIL_RELEASE_NOTES_DRY_RUN`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py` returns `PASS`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py` returns `PASS`
+  - `PYTHONPATH=src python3 tools/service_template_guard.py` returns `PASS`
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Review this local patch. Do not push, post, release, or access credentials."`
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft <clean-draft> --approval-text "APPROVED_PUBLIC_ACTION: comment on issue #16 with reviewed validation evidence"`
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request. No credentials. No public action."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: maintainers can now draft grouped release notes from local git commit summaries while keeping release, tag, package upload, OAuth, paid API, service lifecycle, and credential actions human-gated.
+- Next action: keep release preparation as local draft generation unless a maintainer explicitly approves a separate public release action.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

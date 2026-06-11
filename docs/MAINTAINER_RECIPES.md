@@ -233,6 +233,24 @@ PYTHONPATH=src python3 tools/maintainer_check.py --check docs_link --check servi
 
 The bundle emits JSON and always reports `public_action_taken: false`; it does not push, post, release, upload packages, use OAuth, call paid APIs, or access credentials.
 
+## Release-notes dry run
+
+Use this before release planning or status updates that need a commit-summary draft:
+
+```bash
+PYTHONPATH=src python3 tools/release_notes_dry_run.py --limit 10
+```
+
+To draft a local markdown file for review:
+
+```bash
+PYTHONPATH=src python3 tools/release_notes_dry_run.py \
+  --base-ref v0.1.0 \
+  --output /tmp/agent-handoff-bus-release-notes.md
+```
+
+The draft is local-only. It does not create a GitHub release, tag, package upload, public post, OAuth flow, paid API call, service lifecycle action, or credential access.
+
 Run private-data and security gates before making anything public:
 
 ```bash

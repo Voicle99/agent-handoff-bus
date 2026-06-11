@@ -19,6 +19,7 @@ CHECKS = (
     "handoff_policy",
     "local_adapter",
     "receipt_benchmark",
+    "release_notes",
     "py_compile",
 )
 
@@ -28,6 +29,7 @@ EXPECTED_STATUSES: dict[str, set[str]] = {
     "handoff_policy": {"PASS_LOW_RISK"},
     "local_adapter": {"PASS"},
     "receipt_benchmark": {"PASS"},
+    "release_notes": {"PASS"},
     "py_compile": {"PASS"},
 }
 
@@ -175,6 +177,15 @@ def _command_for_check(name: str, root: Path, temp_dir: Path, args: argparse.Nam
             "--interval",
             str(args.receipt_interval),
         ]
+    if name == "release_notes":
+        return [
+            sys.executable,
+            str(scripts / "release_notes_dry_run.py"),
+            "--root",
+            str(root),
+            "--limit",
+            str(args.release_notes_limit),
+        ]
     raise CheckError(f"unknown check: {name}")
 
 
@@ -258,6 +269,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--receipt-success-timeout", type=float, default=2.0)
     parser.add_argument("--receipt-fail-timeout", type=float, default=0.05)
     parser.add_argument("--receipt-interval", type=float, default=0.01)
+    parser.add_argument("--release-notes-limit", type=int, default=5, help="Commit limit for the release-notes dry-run check.")
     return parser
 
 

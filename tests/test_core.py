@@ -527,6 +527,60 @@ class HandoffBusTests(unittest.TestCase):
             self.assertIn("missing_target", kinds)
             self.assertIn("missing_anchor", kinds)
 
+    def test_maintainer_check_passes_selected_current_checks(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/maintainer_check.py",
+                "--check",
+                "docs_link",
+                "--check",
+                "service_template",
+                "--check",
+                "handoff_policy",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=20,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertEqual(
+            [check["name"] for check in payload["checks"]],
+            ["docs_link", "service_template", "handoff_policy"],
+        )
+
+    def test_maintainer_check_fails_closed_on_broken_docs_link(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "README.md").write_text("# Demo\n\n[missing](docs/nope.md)\n", encoding="utf-8")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/maintainer_check.py",
+                    "--root",
+                    str(root),
+                    "--check",
+                    "docs_link",
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=20,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 1, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "FAIL_MAINTAINER_CHECK")
+            self.assertFalse(payload["public_action_taken"])
+            self.assertEqual(payload["failed_checks"], ["docs_link"])
+
     def test_handoff_policy_check_passes_low_risk_local_review(self) -> None:
         result = subprocess.run(
             [

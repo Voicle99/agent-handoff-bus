@@ -219,6 +219,20 @@ PYTHONPATH=src python3 tools/docs_link_check.py
 PYTHONPATH=src python3 tools/receipt_benchmark.py
 ```
 
+Or run the bundled maintainer routine for the recurring local gates:
+
+```bash
+PYTHONPATH=src python3 tools/maintainer_check.py
+```
+
+For fast focused checks, select only the relevant gates:
+
+```bash
+PYTHONPATH=src python3 tools/maintainer_check.py --check docs_link --check service_template
+```
+
+The bundle emits JSON and always reports `public_action_taken: false`; it does not push, post, release, upload packages, use OAuth, call paid APIs, or access credentials.
+
 Run private-data and security gates before making anything public:
 
 ```bash

@@ -23,3 +23,5 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Check docs links
         run: python tools/docs_link_check.py
+      - name: Run maintainer check bundle
+        run: python tools/maintainer_check.py

@@ -149,6 +149,14 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 tools/docs_link_check.py
 ```
 
+For a single local maintainer routine that bundles the recurring safe gates:
+
+```bash
+PYTHONPATH=src python3 tools/maintainer_check.py
+```
+
+The bundle performs no public action. It only reports whether the selected local checks passed.
+
 Run the local receipt benchmark when changing reliable-send or auto-reply behavior:
 
 ```bash

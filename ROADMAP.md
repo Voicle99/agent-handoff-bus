@@ -26,6 +26,7 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 - [x] Add a small local benchmark/check script for receipt latency and fail-closed behavior.
 - [x] Add documentation for operating the bus in CI-like local environments.
 - [x] Add a local Markdown link checker and CI gate for docs workflow reliability.
+- [x] Add a local maintainer check bundle for the recurring safe-maintenance gates.
 
 ## v0.3.x — adapters and integrations
 

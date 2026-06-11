@@ -27,6 +27,12 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 tools/docs_link_check.py
 ```
 
+Maintainers can also run the bundled local routine:
+
+```bash
+PYTHONPATH=src python3 tools/maintainer_check.py --skip-receipt-benchmark
+```
+
 Before opening a pull request, also check that no personal paths or secret-like values are present in the diff.
 
 GitHub issue forms and the pull request template are intentionally strict. They help first-time contributors provide enough context while keeping real secrets, private logs, account details, and public-action requests out of public artifacts.

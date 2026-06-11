@@ -346,6 +346,40 @@ Each entry should include:
 - Next action: only add a local renderer if real placeholder substitution errors appear; do not turn template checks into service installation or lifecycle automation.
 
 
+## 2026-06-11 — local maintainer check bundle
+
+- Category: daily maintainer routine and local-only workflow reliability
+- Issue: #15, `Add local maintainer check bundle`
+- Changed files:
+  - `tools/maintainer_check.py`
+  - `tests/test_core.py`
+  - `.github/workflows/ci.yml`
+  - `README.md`
+  - `CONTRIBUTING.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/maintainer_check.py` returns `PASS`
+  - GitHub Actions runs `python tools/maintainer_check.py` in the CI matrix
+  - selected-check fixture returns `FAIL_MAINTAINER_CHECK` for a broken local docs link
+  - `PYTHONPATH=src python3 tools/docs_link_check.py` returns `PASS`
+  - `PYTHONPATH=src python3 tools/service_template_guard.py` returns `PASS`
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Review this local patch. Do not push, post, release, or access credentials."`
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft <clean-draft> --approval-text "APPROVED_PUBLIC_ACTION: comment on issue #15 with reviewed validation evidence"`
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request. No credentials. No public action."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: maintainers now have one JSON-emitting local command that runs the recurring dependency-free safety gates without turning checks into public posting, release, package, OAuth, paid API, service lifecycle, or credential automation.
+- Next action: keep the bundle as an aggregator of local gates; add new checks only when they remain dependency-free, deterministic, and human-gated for public effects.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

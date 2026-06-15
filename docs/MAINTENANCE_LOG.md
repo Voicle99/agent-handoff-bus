@@ -414,6 +414,40 @@ Each entry should include:
 - Next action: keep release preparation as local draft generation unless a maintainer explicitly approves a separate public release action.
 
 
+## 2026-06-15 — local worktree health check
+
+- Category: maintainer checkout hygiene and fail-closed local diagnostics
+- Issue: #17, `Add local worktree health check`
+- Changed files:
+  - `tools/worktree_health_check.py`
+  - `tools/maintainer_check.py`
+  - `tests/test_core.py`
+  - `README.md`
+  - `CONTRIBUTING.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/worktree_health_check.py` returns `PASS`
+  - non-git root fixture returns `FAIL_WORKTREE_HEALTH`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py` returns `PASS`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py` returns `PASS`
+  - `PYTHONPATH=src python3 tools/service_template_guard.py` returns `PASS`
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Review this local patch. Do not push, post, release, or access credentials."`
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft <clean-draft> --approval-text "APPROVED_PUBLIC_ACTION: comment on issue #17 with reviewed validation evidence"`
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request. No credentials. No public action."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
+- Result: maintainers can now fail closed on broken or partial checkouts before deeper scripts produce confusing errors, while keeping repair, clone, push, release, package, OAuth, paid API, service lifecycle, and credential actions human-gated.
+- Next action: keep the checker diagnostic-only; do not turn it into destructive cleanup or automatic repair.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

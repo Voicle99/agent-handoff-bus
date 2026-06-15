@@ -527,6 +527,50 @@ class HandoffBusTests(unittest.TestCase):
             self.assertIn("missing_target", kinds)
             self.assertIn("missing_anchor", kinds)
 
+    def test_worktree_health_check_passes_current_repo(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/worktree_health_check.py",
+                "--root",
+                ".",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertEqual(payload["findings"], [])
+        self.assertGreater(len(payload["head"]), 10)
+
+    def test_worktree_health_check_fails_closed_for_non_git_root(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/worktree_health_check.py",
+                    "--root",
+                    tmp,
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 1, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "FAIL_WORKTREE_HEALTH")
+            self.assertFalse(payload["public_action_taken"])
+            self.assertEqual(payload["findings"][0]["kind"], "invalid_git_worktree")
+
     def test_release_notes_dry_run_passes_current_repo(self) -> None:
         result = subprocess.run(
             [
@@ -577,6 +621,8 @@ class HandoffBusTests(unittest.TestCase):
                 sys.executable,
                 "tools/maintainer_check.py",
                 "--check",
+                "worktree_health",
+                "--check",
                 "docs_link",
                 "--check",
                 "service_template",
@@ -598,7 +644,7 @@ class HandoffBusTests(unittest.TestCase):
         self.assertFalse(payload["public_action_taken"])
         self.assertEqual(
             [check["name"] for check in payload["checks"]],
-            ["docs_link", "service_template", "handoff_policy", "release_notes"],
+            ["worktree_health", "docs_link", "service_template", "handoff_policy", "release_notes"],
         )
 
     def test_maintainer_check_fails_closed_on_broken_docs_link(self) -> None:

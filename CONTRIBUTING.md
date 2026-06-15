@@ -27,6 +27,12 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 tools/docs_link_check.py
 ```
 
+Maintainers can verify the checkout before deeper checks:
+
+```bash
+PYTHONPATH=src python3 tools/worktree_health_check.py
+```
+
 Maintainers can also run the bundled local routine:
 
 ```bash

@@ -14,16 +14,18 @@ from typing import Any
 SCHEMA = "agent-handoff-bus/maintainer-check/v1"
 
 CHECKS = (
+    "worktree_health",
     "docs_link",
     "service_template",
     "handoff_policy",
     "local_adapter",
-    "receipt_benchmark",
     "release_notes",
     "py_compile",
+    "receipt_benchmark",
 )
 
 EXPECTED_STATUSES: dict[str, set[str]] = {
+    "worktree_health": {"PASS"},
     "docs_link": {"PASS"},
     "service_template": {"PASS"},
     "handoff_policy": {"PASS_LOW_RISK"},
@@ -65,6 +67,12 @@ def _safe_rel(path: Path, root: Path) -> str:
         return str(path)
 
 
+def _timeout_for_check(name: str) -> float:
+    if name == "receipt_benchmark":
+        return 60.0
+    return 30.0
+
+
 def _run_json_check(name: str, command: list[str], root: Path) -> dict[str, Any]:
     started = time.monotonic()
     result = subprocess.run(
@@ -74,7 +82,7 @@ def _run_json_check(name: str, command: list[str], root: Path) -> dict[str, Any]
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-        timeout=30,
+        timeout=_timeout_for_check(name),
         check=False,
     )
     payload = _json_from_stdout(result.stdout)
@@ -138,6 +146,13 @@ def _run_py_compile(root: Path) -> dict[str, Any]:
 
 def _command_for_check(name: str, root: Path, temp_dir: Path, args: argparse.Namespace) -> list[str]:
     scripts = _project_root() / "tools"
+    if name == "worktree_health":
+        return [
+            sys.executable,
+            str(scripts / "worktree_health_check.py"),
+            "--root",
+            str(root),
+        ]
     if name == "docs_link":
         return [sys.executable, str(scripts / "docs_link_check.py"), "--root", str(root)]
     if name == "service_template":

@@ -149,6 +149,12 @@ PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 tools/docs_link_check.py
 ```
 
+Check that the local checkout itself is usable:
+
+```bash
+PYTHONPATH=src python3 tools/worktree_health_check.py
+```
+
 For a single local maintainer routine that bundles the recurring safe gates:
 
 ```bash

@@ -210,6 +210,18 @@ export AGENT_HANDOFF_HOME="$(mktemp -d)"
 trap 'rm -rf "$AGENT_HANDOFF_HOME"' EXIT
 ```
 
+Check the checkout before deeper maintenance work:
+
+```bash
+PYTHONPATH=src python3 tools/worktree_health_check.py
+```
+
+Use strict clean mode before release preparation if local modifications should be impossible:
+
+```bash
+PYTHONPATH=src python3 tools/worktree_health_check.py --require-clean
+```
+
 Run the dependency-free local checks:
 
 ```bash

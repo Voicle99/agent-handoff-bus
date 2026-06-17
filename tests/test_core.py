@@ -647,6 +647,68 @@ class HandoffBusTests(unittest.TestCase):
             ["worktree_health", "docs_link", "service_template", "handoff_policy", "release_notes"],
         )
 
+    def test_maintainer_check_writes_output_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            output_path = Path(tmp) / "nested" / "maintainer-check.json"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/maintainer_check.py",
+                    "--check",
+                    "worktree_health",
+                    "--check",
+                    "docs_link",
+                    "--output",
+                    str(output_path),
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=20,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue(output_path.is_file())
+            stdout_payload = json.loads(result.stdout)
+            file_payload = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(file_payload, stdout_payload)
+            self.assertEqual(file_payload["status"], "PASS")
+            self.assertFalse(file_payload["public_action_taken"])
+            self.assertEqual([check["name"] for check in file_payload["checks"]], ["worktree_health", "docs_link"])
+
+    def test_maintainer_check_writes_failed_output_receipt(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "not-a-git-repo"
+            root.mkdir()
+            output_path = Path(tmp) / "failed" / "maintainer-check.json"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/maintainer_check.py",
+                    "--root",
+                    str(root),
+                    "--check",
+                    "worktree_health",
+                    "--output",
+                    str(output_path),
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=20,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 1, result.stderr)
+            self.assertTrue(output_path.is_file())
+            stdout_payload = json.loads(result.stdout)
+            file_payload = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(file_payload, stdout_payload)
+            self.assertEqual(file_payload["status"], "FAIL_MAINTAINER_CHECK")
+            self.assertEqual(file_payload["failed_checks"], ["worktree_health"])
+            self.assertFalse(file_payload["public_action_taken"])
+
     def test_maintainer_check_fails_closed_on_broken_docs_link(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

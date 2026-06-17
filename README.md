@@ -161,6 +161,12 @@ For a single local maintainer routine that bundles the recurring safe gates:
 PYTHONPATH=src python3 tools/maintainer_check.py
 ```
 
+Save a durable local JSON receipt for scheduled or repeated maintainer runs:
+
+```bash
+PYTHONPATH=src python3 tools/maintainer_check.py --output /tmp/agent-handoff-bus-maintainer-check.json
+```
+
 The bundle performs no public action. It only reports whether the selected local checks passed.
 
 Draft release notes locally from recent commit summaries:

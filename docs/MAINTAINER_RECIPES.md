@@ -237,6 +237,15 @@ Or run the bundled maintainer routine for the recurring local gates:
 PYTHONPATH=src python3 tools/maintainer_check.py
 ```
 
+For scheduled or repeated local maintenance, write the JSON receipt directly:
+
+```bash
+PYTHONPATH=src python3 tools/maintainer_check.py \
+  --output /tmp/agent-handoff-bus-maintainer-check.json
+```
+
+The output file is local proof only. It does not post status, push commits, create issues, close issues, release, tag, upload packages, call paid APIs, access credentials, or approve any public action.
+
 For fast focused checks, select only the relevant gates:
 
 ```bash

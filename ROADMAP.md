@@ -29,6 +29,7 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 - [x] Add a local maintainer check bundle for the recurring safe-maintenance gates.
 - [x] Add a local release-notes dry run from recent commit summaries.
 - [x] Add a local worktree health check for broken or partial checkouts.
+- [x] Add local JSON receipt output for the maintainer check bundle.
 
 ## v0.3.x — adapters and integrations
 

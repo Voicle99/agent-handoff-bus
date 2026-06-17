@@ -448,6 +448,31 @@ Each entry should include:
 - Next action: keep the checker diagnostic-only; do not turn it into destructive cleanup or automatic repair.
 
 
+## 2026-06-18 — maintainer-check JSON receipt output
+
+- Category: recurring maintainer evidence and scheduled local-run hygiene
+- Issue: #18, `Add maintainer check receipt output`
+- Changed files:
+  - `tools/maintainer_check.py`
+  - `tests/test_core.py`
+  - `README.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/maintainer_check.py --check worktree_health --check docs_link --output <tmp-json>` writes the same JSON payload it prints
+  - failure-path output is still written for a non-git-root `worktree_health` failure
+  - `PYTHONPATH=src python3 tools/maintainer_check.py --output <artifact-json>` returns `PASS`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v` passes
+  - `git diff --check` passes
+  - tracked/untracked high-confidence private/secret scan passes
+  - `bumblebee selftest` passes
+  - `bumblebee scan --root . --emit-summary` returns 0 findings
+  - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 passes after push
+- Result: scheduled or repeated local maintenance can now persist a machine-readable receipt without relying on shell `tee` or changing the public-action boundary.
+- Next action: keep the output receipt local-only; do not let it become a public status poster without a separate explicit approval gate.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

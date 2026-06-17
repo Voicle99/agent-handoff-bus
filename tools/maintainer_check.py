@@ -67,6 +67,18 @@ def _safe_rel(path: Path, root: Path) -> str:
         return str(path)
 
 
+def _json_dumps(payload: dict[str, Any]) -> str:
+    return json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
+
+
+def _write_json_output(output_path: Path, payload: dict[str, Any]) -> None:
+    output_path = output_path.expanduser().resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = output_path.with_name(f".{output_path.name}.tmp")
+    tmp_path.write_text(_json_dumps(payload) + "\n", encoding="utf-8")
+    tmp_path.replace(output_path)
+
+
 def _timeout_for_check(name: str) -> float:
     if name == "receipt_benchmark":
         return 60.0
@@ -285,13 +297,28 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--receipt-fail-timeout", type=float, default=0.05)
     parser.add_argument("--receipt-interval", type=float, default=0.01)
     parser.add_argument("--release-notes-limit", type=int, default=5, help="Commit limit for the release-notes dry-run check.")
+    parser.add_argument("--output", help="Optional local JSON output path for the maintainer-check receipt.")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     exit_code, payload = run(args)
-    print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+    if args.output:
+        try:
+            _write_json_output(Path(args.output), payload)
+        except OSError as exc:
+            payload = {
+                "status": "ERROR",
+                "schema": SCHEMA,
+                "summary": "could not write maintainer-check output file",
+                "output_path": str(Path(args.output).expanduser()),
+                "error": str(exc),
+                "original_status": payload.get("status"),
+                "public_action_taken": bool(payload.get("public_action_taken")),
+            }
+            exit_code = 2
+    print(_json_dumps(payload))
     return exit_code
 
 

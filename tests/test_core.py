@@ -79,6 +79,66 @@ class HandoffBusTests(unittest.TestCase):
         acked = ack_handoff(item["id"], note="done")
         self.assertEqual(acked["status"], "ACKED")
 
+    def test_cli_source_session_alias_and_catchup_inbox(self) -> None:
+        env = {**os.environ, "PYTHONPATH": "src"}
+        send = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "agent_handoff_bus",
+                "send",
+                "--source-session",
+                "agent-a",
+                "--to",
+                "agent-b",
+                "--title",
+                "CLI alias",
+                "--body",
+                "Catch up on this portable operator command.",
+            ],
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(send.returncode, 0, send.stderr)
+        sent = json.loads(send.stdout)
+        self.assertEqual(sent["status"], "SENT")
+        self.assertEqual(sent["handoff"]["source_session"], "agent-a")
+
+        catchup = subprocess.run(
+            [sys.executable, "-m", "agent_handoff_bus", "catchup", "agent-b"],
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(catchup.returncode, 0, catchup.stderr)
+        payload = json.loads(catchup.stdout)
+        self.assertEqual(payload["status"], "OK")
+        self.assertEqual(payload["target_session"], "agent-b")
+        self.assertEqual(payload["pending_count"], 1)
+
+        inbox = subprocess.run(
+            [sys.executable, "-m", "agent_handoff_bus", "inbox", "--for", "agent-b", "--plain"],
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(inbox.returncode, 0, inbox.stderr)
+        self.assertIn("Catch up on this portable operator command.", inbox.stdout)
+
+    def test_pyproject_declares_handoff_bus_entrypoint(self) -> None:
+        text = Path("pyproject.toml").read_text(encoding="utf-8")
+        self.assertIn('handoff-bus = "agent_handoff_bus.cli:main"', text)
+
     def test_reliable_send_passes_and_optionally_acks_receipt(self) -> None:
         env = os.environ.copy()
         env["AGENT_HANDOFF_HOME"] = self.tmp.name

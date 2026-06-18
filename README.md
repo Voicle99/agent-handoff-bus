@@ -41,13 +41,19 @@ cd agent-handoff-bus
 python3 -m pip install -e .
 ```
 
+The package installs both command names:
+
+- `agent-handoff`: canonical package command.
+- `handoff-bus`: short operator command for the same CLI, so teams can use one
+  memorable command without machine-specific shell wrappers.
+
 ## Quick start
 
 Use an isolated bus home while trying it:
 
 ```bash
 export AGENT_HANDOFF_HOME="$PWD/.agent-handoff-bus"
-agent-handoff doctor
+handoff-bus doctor
 ```
 
 Send a handoff from one local agent/session to another:
@@ -66,10 +72,17 @@ Read it:
 agent-handoff latest --for agent-b --pending-only --plain
 ```
 
+Or use the operator-friendly catch-up alias:
+
+```bash
+handoff-bus catchup agent-b
+handoff-bus inbox --for agent-b --plain
+```
+
 Ack only after the receiver has actually read or handled it:
 
 ```bash
-agent-handoff ack <handoff-id> --note DONE
+handoff-bus ack <handoff-id> --note DONE
 ```
 
 ## Reliable receipt bridge

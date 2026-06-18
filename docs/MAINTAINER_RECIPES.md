@@ -151,6 +151,35 @@ Expected output when no receiver bridge is running:
 
 Remember: `AUTO-RECEIVED` is delivery proof only. It is not task completion and not permission to perform public actions.
 
+## Packaged command for repeatable operators
+
+Use the packaged `handoff-bus` command when documenting an operator workflow or
+shipping setup steps to another machine. It is the same CLI as
+`agent-handoff`, but avoids machine-specific shell wrappers.
+
+```bash
+python3 -m pip install -e .
+handoff-bus doctor
+handoff-bus status
+handoff-bus catchup reviewer
+handoff-bus inbox --for reviewer --plain
+```
+
+When sending from scripts, prefer explicit source and target sessions so the
+workflow is portable:
+
+```bash
+handoff-bus send \
+  --source-session maintainer \
+  --to reviewer \
+  --title "Local review request" \
+  --body "Review the current diff. Return PASS, BLOCKED, or CHANGE_REQUESTED. Do not push, post, publish, or access credentials."
+```
+
+This command layer is packaging only. It does not start services, approve
+public actions, bypass the scanner, or ACK original work before the receiver has
+read and handled it.
+
 ## Optional local auto-reply service templates
 
 Use the templates in [`../examples/`](../examples/) only for local workstation

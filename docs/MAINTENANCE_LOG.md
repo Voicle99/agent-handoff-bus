@@ -473,6 +473,31 @@ Each entry should include:
 - Next action: keep the output receipt local-only; do not let it become a public status poster without a separate explicit approval gate.
 
 
+## 2026-06-18 — packaged operator command and catch-up aliases
+
+- Category: operator packaging and cross-agent handoff usability
+- Issue: local TOM/Jelly operator packaging request
+- Changed files:
+  - `src/agent_handoff_bus/cli.py`
+  - `pyproject.toml`
+  - `tests/test_core.py`
+  - `README.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py`
+  - `git diff --check`
+  - tracked/untracked high-confidence private/secret scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+- Result: the package now installs `handoff-bus` as a first-class command alias, accepts `--source-session` on send, and exposes `catchup`/`inbox` commands so TOM/Jelly-style operator workflows do not need one-off local shell wrappers.
+- Next action: keep machine-specific LaunchAgent and private dispatcher tuning outside the public package; promote only portable commands, templates, and documented recipes.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

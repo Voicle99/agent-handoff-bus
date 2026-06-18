@@ -9,6 +9,7 @@ from typing import Any
 
 from .core import (
     DEFAULT_PORT,
+    DEFAULT_SESSION_ENV,
     SCHEMA,
     CreateInput,
     ack_handoff,
@@ -82,6 +83,29 @@ def cmd_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_catchup(args: argparse.Namespace) -> int:
+    session = args.for_session or args.session or os.environ.get(DEFAULT_SESSION_ENV) or "agent-b"
+    rows = list_handoffs(target_session=session, status="PENDING", limit=args.limit)
+    if args.plain:
+        if not rows:
+            json_out({"status": "EMPTY", "target_session": session})
+            return 0
+        for index, item in enumerate(reversed(rows), start=1):
+            if index > 1:
+                print("\n---\n")
+            print(Path(item["body_path"]).read_text(encoding="utf-8", errors="replace"))
+        return 0
+    json_out(
+        {
+            "status": "OK",
+            "target_session": session,
+            "pending_count": len(rows),
+            "handoffs": [compact_item(row) for row in rows],
+        }
+    )
+    return 0
+
+
 def cmd_show(args: argparse.Namespace) -> int:
     item = get_handoff(args.id)
     if not item:
@@ -148,6 +172,7 @@ def build_parser() -> argparse.ArgumentParser:
     send = sub.add_parser("send", help="create a handoff")
     send.add_argument("--to", required=True, help="target session id")
     send.add_argument("--from", dest="source_session", help="source session id")
+    send.add_argument("--source-session", dest="source_session", help="source session id")
     send.add_argument("--file")
     send.add_argument("--body")
     send.add_argument("--title")
@@ -170,6 +195,13 @@ def build_parser() -> argparse.ArgumentParser:
     list_cmd.add_argument("--status")
     list_cmd.add_argument("--limit", type=int, default=20)
     list_cmd.set_defaults(func=cmd_list)
+
+    catchup = sub.add_parser("catchup", aliases=["inbox"], help="show pending handoffs for a session")
+    catchup.add_argument("session", nargs="?", help="target session id; defaults to AGENT_HANDOFF_SESSION or agent-b")
+    catchup.add_argument("--for", dest="for_session", help="target session id")
+    catchup.add_argument("--limit", type=int, default=20)
+    catchup.add_argument("--plain", action="store_true", help="print pending handoff bodies")
+    catchup.set_defaults(func=cmd_catchup)
 
     show = sub.add_parser("show", help="show one handoff")
     show.add_argument("id")

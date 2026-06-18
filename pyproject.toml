@@ -32,6 +32,7 @@ Issues = "https://github.com/Voicle99/agent-handoff-bus/issues"
 
 [project.scripts]
 agent-handoff = "agent_handoff_bus.cli:main"
+handoff-bus = "agent_handoff_bus.cli:main"
 agent-handoff-auto-reply = "agent_handoff_bus.auto_reply:main"
 agent-handoff-reliable = "agent_handoff_bus.reliable_send:main"
 

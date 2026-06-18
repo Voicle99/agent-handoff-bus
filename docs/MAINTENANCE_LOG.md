@@ -498,6 +498,27 @@ Each entry should include:
 - Next action: keep machine-specific LaunchAgent and private dispatcher tuning outside the public package; promote only portable commands, templates, and documented recipes.
 
 
+## 2026-06-19 — GitHub Actions Node 24 action compatibility
+
+- Category: CI maintenance and runner compatibility
+- Issue: GitHub Actions warning that Node 20 actions were being forced onto Node 24
+- Changed files:
+  - `.github/workflows/ci.yml`
+  - `tests/test_core.py`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py`
+  - `git diff --check`
+  - tracked/untracked high-confidence private/secret scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+- Result: CI now uses `actions/checkout@v6` and `actions/setup-python@v6`, and the test suite checks that the workflow does not regress to the Node 20-era action versions that produced the warning.
+- Next action: confirm the pushed workflow run completes without the previous Node 20 deprecation annotation.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

@@ -139,6 +139,13 @@ class HandoffBusTests(unittest.TestCase):
         text = Path("pyproject.toml").read_text(encoding="utf-8")
         self.assertIn('handoff-bus = "agent_handoff_bus.cli:main"', text)
 
+    def test_ci_workflow_uses_node24_actions(self) -> None:
+        text = Path(".github/workflows/ci.yml").read_text(encoding="utf-8")
+        self.assertIn("actions/checkout@v6", text)
+        self.assertIn("actions/setup-python@v6", text)
+        self.assertNotIn("actions/checkout@v4", text)
+        self.assertNotIn("actions/setup-python@v5", text)
+
     def test_reliable_send_passes_and_optionally_acks_receipt(self) -> None:
         env = os.environ.copy()
         env["AGENT_HANDOFF_HOME"] = self.tmp.name

@@ -545,6 +545,31 @@ Each entry should include:
 - Next action: when a package-index release is actually published, update the guide with the pinned release command and verify it against the published artifact.
 
 
+## 2026-06-19 — AI-assisted 5-minute install guide
+
+- Category: customer onboarding and AI-assisted installation
+- Issue: fastest realistic customer install path should be a bounded local-AI prompt, not a long manual
+- Changed files:
+  - `docs/AI_ASSISTED_5_MIN_INSTALL.md`
+  - `docs/INSTALL.md`
+  - `README.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+  - `tests/test_core.py`
+- Verification:
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py`
+  - temporary virtual-environment smoke of the prompt's core command sequence
+  - `git diff --check`
+  - tracked/untracked high-confidence private/secret scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+- Result: customers with a local terminal-capable AI assistant can now paste one bounded prompt that checks prerequisites, installs from Git, creates an isolated smoke-test state, runs `doctor`, `send`, `catchup`, and `inbox --plain`, and returns either `INSTALL_READY` or an exact blocker.
+- Next action: if customers repeatedly lack Python/Git, add a separate preflight guide instead of letting the AI install system dependencies silently.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

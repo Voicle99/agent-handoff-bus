@@ -3,6 +3,9 @@
 This guide is the repeatable customer/operator path for installing
 `agent-handoff-bus` without local one-off tuning.
 
+If the customer has a local terminal-capable AI assistant, the fastest path is
+the [AI-assisted 5-minute install](AI_ASSISTED_5_MIN_INSTALL.md).
+
 ## What gets installed
 
 The package provides:
@@ -244,4 +247,3 @@ Before calling an install ready:
 - No rendered service file or local path has been committed to the repository.
 - Public/paid/OAuth/credential actions remain separately approved outside the
   handoff bus.
-

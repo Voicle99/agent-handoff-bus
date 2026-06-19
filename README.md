@@ -46,6 +46,9 @@ The package is not useful to operators until `doctor` returns top-level
 smoke tests, troubleshooting, and customer readiness checks, see the
 [installation guide](docs/INSTALL.md).
 
+For the fastest customer onboarding path, use the
+[AI-assisted 5-minute install](docs/AI_ASSISTED_5_MIN_INSTALL.md).
+
 For local development after cloning:
 
 ```bash
@@ -159,6 +162,7 @@ The guard blocks rendered service files and user-specific paths under `examples/
 
 - [Roadmap](ROADMAP.md)
 - [Installation guide](docs/INSTALL.md)
+- [AI-assisted 5-minute install](docs/AI_ASSISTED_5_MIN_INSTALL.md)
 - [Maintenance log](docs/MAINTENANCE_LOG.md)
 - [Maintainer workflow recipes](docs/MAINTAINER_RECIPES.md)
 - [GitHub issue and PR dry-run workflow](docs/GITHUB_WORKFLOW_DRY_RUN.md)

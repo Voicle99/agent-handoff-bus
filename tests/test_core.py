@@ -163,6 +163,15 @@ class HandoffBusTests(unittest.TestCase):
         self.assertEqual(cli_check["status"], "PASS")
         self.assertEqual(cli_check["commands"]["handoff-bus"], str(alias))
 
+    def test_ai_assisted_install_guide_has_bounded_prompt(self) -> None:
+        text = Path("docs/AI_ASSISTED_5_MIN_INSTALL.md").read_text(encoding="utf-8")
+        self.assertIn("AI-assisted 5-minute install", text)
+        self.assertIn("INSTALL_READY", text)
+        self.assertIn("BLOCKED_INSTALL_PREREQ", text)
+        self.assertIn("Do not ask for or read secrets", text)
+        self.assertIn("handoff-bus doctor", text)
+        self.assertIn("handoff-bus inbox --for agent-b --plain", text)
+
     def test_reliable_send_passes_and_optionally_acks_receipt(self) -> None:
         env = os.environ.copy()
         env["AGENT_HANDOFF_HOME"] = self.tmp.name

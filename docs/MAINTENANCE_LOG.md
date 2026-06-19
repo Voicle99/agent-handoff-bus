@@ -519,6 +519,32 @@ Each entry should include:
 - Next action: confirm the pushed workflow run completes without the previous Node 20 deprecation annotation.
 
 
+## 2026-06-19 — customer/operator installation guide
+
+- Category: installation documentation and operator readiness
+- Issue: sales/customer install path needed to avoid one-off tuning
+- Changed files:
+  - `docs/INSTALL.md`
+  - `README.md`
+  - `ROADMAP.md`
+  - `docs/MAINTENANCE_LOG.md`
+  - `src/agent_handoff_bus/core.py`
+  - `tests/test_core.py`
+- Verification:
+  - `python3 -m pip index versions agent-handoff-bus` currently reports no matching distribution, so README now defaults to source install and points to the install guide instead of implying a published package is available.
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py`
+  - temporary virtual-environment console-script smoke for `handoff-bus doctor`, `send`, `catchup`, and `inbox --plain`
+  - `git diff --check`
+  - tracked/untracked high-confidence private/secret scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+- Result: operators now have a dedicated install guide covering source install, pipx-from-Git install, future package-index release checks, isolated smoke tests, reliable receipt smoke tests, persistent local service templates, common commands, troubleshooting, and production/customer readiness checks. `doctor` now treats either `agent-handoff` or `handoff-bus` as a valid CLI on PATH.
+- Next action: when a package-index release is actually published, update the guide with the pinned release command and verify it against the published artifact.
+
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

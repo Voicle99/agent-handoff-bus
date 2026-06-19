@@ -407,11 +407,16 @@ def serve(host: str = "127.0.0.1", port: int = DEFAULT_PORT, quiet: bool = False
 
 def doctor() -> tuple[str, list[dict[str, Any]]]:
     path = ensure_db()
+    cli_paths = {
+        "agent-handoff": shutil.which("agent-handoff"),
+        "handoff-bus": shutil.which("handoff-bus"),
+    }
+    cli_path = next((value for value in cli_paths.values() if value), None)
     checks: list[dict[str, Any]] = [
         {"id": "home_exists", "status": "PASS" if bus_home().exists() else "BLOCKED", "path": str(bus_home())},
         {"id": "db_exists", "status": "PASS" if path.exists() else "BLOCKED", "path": str(path)},
         {"id": "store_exists", "status": "PASS" if store_dir().exists() else "BLOCKED", "path": str(store_dir())},
-        {"id": "cli_available", "status": "PASS" if shutil.which("agent-handoff") else "HOLD", "path": shutil.which("agent-handoff")},
+        {"id": "cli_available", "status": "PASS" if cli_path else "HOLD", "path": cli_path, "commands": cli_paths},
         {"id": "secret_scanner", "status": "PASS" if not scan_sensitive("hello safe handoff") else "BLOCKED"},
     ]
     status = "PASS" if all(c["status"] in {"PASS", "HOLD"} for c in checks) else "BLOCKED"

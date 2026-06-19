@@ -22,6 +22,7 @@ from agent_handoff_bus.core import (
     ThreadingHTTPServer,
     ack_handoff,
     create_handoff,
+    doctor,
     get_handoff,
     latest_handoff,
     scan_sensitive,
@@ -145,6 +146,22 @@ class HandoffBusTests(unittest.TestCase):
         self.assertIn("actions/setup-python@v6", text)
         self.assertNotIn("actions/checkout@v4", text)
         self.assertNotIn("actions/setup-python@v5", text)
+
+    def test_doctor_accepts_handoff_bus_console_script_alias(self) -> None:
+        old_path = os.environ.get("PATH", "")
+        with tempfile.TemporaryDirectory() as tmp:
+            alias = Path(tmp) / "handoff-bus"
+            alias.write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+            alias.chmod(0o755)
+            os.environ["PATH"] = tmp
+            try:
+                status, checks = doctor()
+            finally:
+                os.environ["PATH"] = old_path
+        self.assertEqual(status, "PASS")
+        cli_check = next(check for check in checks if check["id"] == "cli_available")
+        self.assertEqual(cli_check["status"], "PASS")
+        self.assertEqual(cli_check["commands"]["handoff-bus"], str(alias))
 
     def test_reliable_send_passes_and_optionally_acks_receipt(self) -> None:
         env = os.environ.copy()

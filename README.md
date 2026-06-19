@@ -29,15 +29,26 @@ See [`docs/SAFETY.md`](docs/SAFETY.md).
 
 ## Install
 
-```bash
-python3 -m pip install agent-handoff-bus
-```
-
-For local development:
+Current repeatable install path:
 
 ```bash
 git clone https://github.com/Voicle99/agent-handoff-bus.git
 cd agent-handoff-bus
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -e .
+handoff-bus doctor
+```
+
+The package is not useful to operators until `doctor` returns top-level
+`PASS`. For pipx, future package-index installs, persistent service templates,
+smoke tests, troubleshooting, and customer readiness checks, see the
+[installation guide](docs/INSTALL.md).
+
+For local development after cloning:
+
+```bash
 python3 -m pip install -e .
 ```
 
@@ -147,6 +158,7 @@ The guard blocks rendered service files and user-specific paths under `examples/
 ## Project maintenance
 
 - [Roadmap](ROADMAP.md)
+- [Installation guide](docs/INSTALL.md)
 - [Maintenance log](docs/MAINTENANCE_LOG.md)
 - [Maintainer workflow recipes](docs/MAINTAINER_RECIPES.md)
 - [GitHub issue and PR dry-run workflow](docs/GITHUB_WORKFLOW_DRY_RUN.md)

@@ -569,6 +569,40 @@ Each entry should include:
 - Result: customers with a local terminal-capable AI assistant can now paste one bounded prompt that checks prerequisites, installs from Git, creates an isolated smoke-test state, runs `doctor`, `send`, `catchup`, and `inbox --plain`, and returns either `INSTALL_READY` or an exact blocker.
 - Next action: if customers repeatedly lack Python/Git, add a separate preflight guide instead of letting the AI install system dependencies silently.
 
+## 2026-06-20 — commercial readiness and release artifact gate
+
+- Category: sales readiness, release packaging, and customer support surface
+- Issue: 360° sales audit found self-serve sale blockers around commercial terms, support, pricing, demo material, stale release surface, and artifact checksums
+- Changed files:
+  - `pyproject.toml`
+  - `.github/workflows/ci.yml`
+  - `TERMS.md`
+  - `PRIVACY.md`
+  - `SUPPORT.md`
+  - `CHANGELOG.md`
+  - `docs/PRICING_AND_OFFER.md`
+  - `docs/DEMO_AND_FAQ.md`
+  - `tools/build_release_artifacts.py`
+  - `README.md`
+  - `docs/INSTALL.md`
+  - `ROADMAP.md`
+  - `tests/test_core.py`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py`
+  - `python tools/build_release_artifacts.py --dist-dir dist`
+  - wheel/sdist `twine check`
+  - wheel install smoke with `handoff-bus doctor/send/catchup/inbox --plain`
+  - `git diff --check`
+  - tracked/untracked high-confidence private/secret scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+- Result: the repository now has customer-facing commercial wrapper docs, support/refund policy, pricing hypotheses, demo/FAQ, changelog, version `0.2.0`, and a local release artifact builder that emits wheel/sdist checksums without uploading or performing public actions.
+- Next action: after CI passes, create a GitHub release for `v0.2.0` with artifacts and checksums; publish to PyPI only after a separate package-index approval and credential check.
+
 
 ## Earlier baseline
 

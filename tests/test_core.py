@@ -172,6 +172,27 @@ class HandoffBusTests(unittest.TestCase):
         self.assertIn("handoff-bus doctor", text)
         self.assertIn("handoff-bus inbox --for agent-b --plain", text)
 
+    def test_commercial_readiness_docs_exist(self) -> None:
+        required = {
+            "TERMS.md": ["No implicit authority", "refund", "MIT License"],
+            "PRIVACY.md": ["Telemetry", "local files", "Data deletion"],
+            "SUPPORT.md": ["Refund and cancellation policy", "Response targets", "Bug report checklist"],
+            "CHANGELOG.md": ["v0.2.0", "AI-assisted 5-minute install"],
+            "docs/PRICING_AND_OFFER.md": ["Guided install pilot", "Managed operator setup", "Do not promise"],
+            "docs/DEMO_AND_FAQ.md": ["Two-minute demo script", "Demo checklist", "FAQ"],
+        }
+        for filename, markers in required.items():
+            with self.subTest(filename=filename):
+                text = Path(filename).read_text(encoding="utf-8")
+                for marker in markers:
+                    self.assertIn(marker, text)
+
+    def test_release_artifact_helper_is_local_only(self) -> None:
+        text = Path("tools/build_release_artifacts.py").read_text(encoding="utf-8")
+        self.assertIn("does not upload to PyPI", text)
+        self.assertIn("SHA256SUMS", text)
+        self.assertIn("public_action_taken", text)
+
     def test_reliable_send_passes_and_optionally_acks_receipt(self) -> None:
         env = os.environ.copy()
         env["AGENT_HANDOFF_HOME"] = self.tmp.name

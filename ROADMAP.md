@@ -33,6 +33,7 @@ This roadmap focuses on maintainer workflows: pull request review, issue triage,
 - [x] Add a packaged `handoff-bus` operator command alias plus catch-up/inbox commands.
 - [x] Add a customer/operator installation guide with source, pipx, smoke, service, troubleshooting, and readiness steps.
 - [x] Add an AI-assisted 5-minute install prompt for customer onboarding.
+- [x] Add commercial readiness docs, support/refund policy, demo FAQ, changelog, and release artifact build gate.
 
 ## v0.3.x — adapters and integrations
 

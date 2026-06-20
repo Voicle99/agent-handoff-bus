@@ -6,6 +6,8 @@ This guide is the repeatable customer/operator path for installing
 If the customer has a local terminal-capable AI assistant, the fastest path is
 the [AI-assisted 5-minute install](AI_ASSISTED_5_MIN_INSTALL.md).
 
+For paid pilots and customer onboarding scope, see [Pricing and offer](PRICING_AND_OFFER.md), [Support](../SUPPORT.md), [Terms](../TERMS.md), and [Privacy](../PRIVACY.md).
+
 ## What gets installed
 
 The package provides:

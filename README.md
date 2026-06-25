@@ -196,6 +196,13 @@ For a single local maintainer routine that bundles the recurring safe gates:
 PYTHONPATH=src python3 tools/maintainer_check.py
 ```
 
+Repository tools also bootstrap the local `src/` tree when run directly from a
+checkout, so quick discovery works without hidden environment setup:
+
+```bash
+python3 tools/maintainer_check.py --help
+```
+
 Save a durable local JSON receipt for scheduled or repeated maintainer runs:
 
 ```bash

@@ -266,6 +266,13 @@ Or run the bundled maintainer routine for the recurring local gates:
 PYTHONPATH=src python3 tools/maintainer_check.py
 ```
 
+For quick discovery from a fresh checkout, every public repository tool should
+also answer direct help without `PYTHONPATH`:
+
+```bash
+python3 tools/maintainer_check.py --help
+```
+
 For scheduled or repeated local maintenance, write the JSON receipt directly:
 
 ```bash

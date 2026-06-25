@@ -11,6 +11,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+import _bootstrap  # noqa: F401 - adds local src/ to sys.path for direct tool runs
 from typing import Any
 
 from agent_handoff_bus.auto_reply import process_once

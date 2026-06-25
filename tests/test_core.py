@@ -729,6 +729,25 @@ class HandoffBusTests(unittest.TestCase):
             self.assertEqual(payload["status"], "FAIL_RELEASE_NOTES_DRY_RUN")
             self.assertFalse(payload["public_action_taken"])
 
+    def test_tools_help_direct_run_without_pythonpath(self) -> None:
+        env = os.environ.copy()
+        env.pop("PYTHONPATH", None)
+        tool_paths = sorted(path for path in Path("tools").glob("*.py") if not path.name.startswith("_"))
+        self.assertGreater(tool_paths, [])
+        for tool_path in tool_paths:
+            with self.subTest(tool=str(tool_path)):
+                result = subprocess.run(
+                    [sys.executable, str(tool_path), "--help"],
+                    env=env,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    timeout=10,
+                    check=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("usage:", result.stdout.lower())
+
     def test_maintainer_check_passes_selected_current_checks(self) -> None:
         result = subprocess.run(
             [

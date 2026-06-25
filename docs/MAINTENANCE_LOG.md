@@ -604,6 +604,40 @@ Each entry should include:
 - Next action: after CI passes, create a GitHub release for `v0.2.0` with artifacts and checksums; publish to PyPI only after a separate package-index approval and credential check.
 
 
+## 2026-06-25 — direct-run local tools bootstrap
+
+- Category: maintainer onboarding and local workflow tooling
+- Issue: #19, `Make local tools runnable without PYTHONPATH`
+- Changed files:
+  - `tools/_bootstrap.py`
+  - `tools/handoff_policy_check.py`
+  - `tools/local_adapter_dry_run.py`
+  - `tools/public_action_draft_guard.py`
+  - `tools/receipt_benchmark.py`
+  - `tools/service_template_guard.py`
+  - `tests/test_core.py`
+  - `README.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `python3 tools/<tool>.py --help` works for every public tool without `PYTHONPATH`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py --output <artifact-json>`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/local_adapter_dry_run.py --body "Dummy local-only request. No credentials. No public action."`
+  - `PYTHONPATH=src python3 tools/receipt_benchmark.py`
+  - `PYTHONPATH=src python3 tools/worktree_health_check.py --require-clean`
+  - `PYTHONPATH=src python3 tools/public_action_draft_guard.py --draft <clean-draft> --approval-text "APPROVED_PUBLIC_ACTION: comment on issue #19 with reviewed validation evidence"`
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Review this local patch. Do not push, post, release, or access credentials."`
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix after push
+- Result: contributors and maintainers can discover local safety tools directly from a fresh checkout without a confusing `ModuleNotFoundError`, while existing CI-like `PYTHONPATH=src` commands stay supported.
+- Next action: keep the bootstrap local to repository tools; do not turn it into package install, network, credential, release, or public-action automation.
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

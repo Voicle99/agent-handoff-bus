@@ -638,6 +638,29 @@ Each entry should include:
 - Result: contributors and maintainers can discover local safety tools directly from a fresh checkout without a confusing `ModuleNotFoundError`, while existing CI-like `PYTHONPATH=src` commands stay supported.
 - Next action: keep the bootstrap local to repository tools; do not turn it into package install, network, credential, release, or public-action automation.
 
+## 2026-06-28 — public-safe maintainer check summary
+
+- Category: safety boundary and maintainer evidence hygiene
+- Issue: #20, `Add public-safe maintainer check summary`
+- Changed files:
+  - `tools/maintainer_check.py`
+  - `tests/test_core.py`
+  - `README.md`
+  - `docs/MAINTAINER_RECIPES.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py --output <artifact-json>`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `git diff --check`
+  - tracked/untracked high-confidence secret and private-data scan
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+  - GitHub Actions matrix after push
+- Result: maintainer-check receipts now include a `public_summary` field that omits local paths and raw commands, so maintainers can quote validation evidence without exposing local checkout details or implying that the receipt itself performed public actions.
+- Next action: keep full maintainer-check receipts local; quote only `public_summary` in issue comments.
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.

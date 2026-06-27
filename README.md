@@ -209,7 +209,10 @@ Save a durable local JSON receipt for scheduled or repeated maintainer runs:
 PYTHONPATH=src python3 tools/maintainer_check.py --output /tmp/agent-handoff-bus-maintainer-check.json
 ```
 
-The bundle performs no public action. It only reports whether the selected local checks passed.
+The bundle performs no public action. It only reports whether the selected
+local checks passed. Keep the full receipt local because it can include local
+checkout paths and command strings; quote only its `public_summary` field in
+issue comments or other public validation notes.
 
 Draft release notes locally from recent commit summaries:
 

@@ -79,6 +79,44 @@ def _write_json_output(output_path: Path, payload: dict[str, Any]) -> None:
     tmp_path.replace(output_path)
 
 
+def _public_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    checks = payload.get("checks")
+    public_checks: list[dict[str, Any]] = []
+    if isinstance(checks, list):
+        for check in checks:
+            if not isinstance(check, dict):
+                continue
+            public_checks.append(
+                {
+                    "name": check.get("name"),
+                    "status": check.get("status"),
+                    "observed_status": check.get("observed_status"),
+                    "public_action_taken": bool(check.get("public_action_taken")),
+                }
+            )
+
+    summary: dict[str, Any] = {
+        "schema": "agent-handoff-bus/maintainer-check-public-summary/v1",
+        "status": payload.get("status"),
+        "summary": payload.get("summary"),
+        "checks": public_checks,
+        "failed_checks": list(payload.get("failed_checks") or []),
+        "public_action_taken": bool(payload.get("public_action_taken")),
+        "local_paths_omitted": True,
+        "raw_commands_omitted": True,
+        "next_action": (
+            "Use this summary for public validation comments; keep the full local receipt private."
+        ),
+    }
+    return summary
+
+
+def _with_public_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(payload)
+    payload["public_summary"] = _public_summary(payload)
+    return payload
+
+
 def _timeout_for_check(name: str) -> float:
     if name == "receipt_benchmark":
         return 60.0
@@ -304,6 +342,7 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     exit_code, payload = run(args)
+    payload = _with_public_summary(payload)
     if args.output:
         try:
             _write_json_output(Path(args.output), payload)
@@ -317,6 +356,7 @@ def main(argv: list[str] | None = None) -> int:
                 "original_status": payload.get("status"),
                 "public_action_taken": bool(payload.get("public_action_taken")),
             }
+            payload = _with_public_summary(payload)
             exit_code = 2
     print(_json_dumps(payload))
     return exit_code

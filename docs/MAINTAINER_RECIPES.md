@@ -280,7 +280,11 @@ PYTHONPATH=src python3 tools/maintainer_check.py \
   --output /tmp/agent-handoff-bus-maintainer-check.json
 ```
 
-The output file is local proof only. It does not post status, push commits, create issues, close issues, release, tag, upload packages, call paid APIs, access credentials, or approve any public action.
+The output file is local proof only. It does not post status, push commits,
+create issues, close issues, release, tag, upload packages, call paid APIs,
+access credentials, or approve any public action. The full receipt can include
+local checkout paths and raw command strings; use its `public_summary` field
+when copying validation evidence into a public issue comment.
 
 For fast focused checks, select only the relevant gates:
 

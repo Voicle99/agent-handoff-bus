@@ -18,6 +18,7 @@ CHECKS = (
     "docs_link",
     "service_template",
     "handoff_policy",
+    "repo_secret_scan",
     "local_adapter",
     "release_notes",
     "py_compile",
@@ -30,6 +31,7 @@ EXPECTED_STATUSES: dict[str, set[str]] = {
     "service_template": {"PASS"},
     "handoff_policy": {"PASS_LOW_RISK"},
     "local_adapter": {"PASS"},
+    "repo_secret_scan": {"PASS"},
     "receipt_benchmark": {"PASS"},
     "release_notes": {"PASS"},
     "py_compile": {"PASS"},
@@ -214,6 +216,8 @@ def _command_for_check(name: str, root: Path, temp_dir: Path, args: argparse.Nam
             "--body",
             "Review this local patch. Do not push, post, release, or access credentials.",
         ]
+    if name == "repo_secret_scan":
+        return [sys.executable, str(scripts / "repo_secret_scan.py"), "--root", str(root)]
     if name == "local_adapter":
         return [
             sys.executable,

@@ -25,6 +25,17 @@ The default sender blocks common secret-like patterns, including:
 
 The scanner is a guardrail, not a guarantee. Keep secrets out of handoff text.
 
+For repository maintenance, run the local source scan before committing or
+copying validation into public text:
+
+```bash
+PYTHONPATH=src python3 tools/repo_secret_scan.py
+```
+
+That scan performs no public action and reports only file, line, and finding
+kind. It complements, but does not replace, human review or external security
+scanners such as Bumblebee.
+
 ### Scanner limits
 
 Known false-positive cases:

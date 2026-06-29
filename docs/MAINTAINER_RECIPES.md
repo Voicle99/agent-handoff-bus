@@ -257,6 +257,7 @@ Run the dependency-free local checks:
 python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 tools/docs_link_check.py
+PYTHONPATH=src python3 tools/repo_secret_scan.py
 PYTHONPATH=src python3 tools/receipt_benchmark.py
 ```
 
@@ -317,12 +318,16 @@ Run private-data and security gates before making anything public:
 ```bash
 git diff --check
 git ls-files --others --exclude-standard
-# Run your local high-confidence scan over tracked files, untracked candidate
-# files, and git metadata before committing or opening public issues.
+PYTHONPATH=src python3 tools/repo_secret_scan.py
 bumblebee version
 bumblebee selftest
 bumblebee scan --root . --emit-summary
 ```
+
+`tools/repo_secret_scan.py` is a local guardrail, not a full DLP system. It
+scans tracked files plus untracked non-ignored candidate files, reports only
+file/line/kind metadata, and allows only narrow fake fixtures that are covered
+by tests.
 
 Keep examples dummy-only. Do not put real API keys, private tokens, customer
 data, personal paths, private chat transcripts, or account details into the

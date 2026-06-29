@@ -182,6 +182,7 @@ The guard blocks rendered service files and user-specific paths under `examples/
 python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py
 PYTHONPATH=src python3 -m unittest discover -s tests -v
 PYTHONPATH=src python3 tools/docs_link_check.py
+PYTHONPATH=src python3 tools/repo_secret_scan.py
 ```
 
 Check that the local checkout itself is usable:
@@ -257,6 +258,17 @@ Check local Markdown links before committing docs changes:
 ```bash
 PYTHONPATH=src python3 tools/docs_link_check.py
 ```
+
+Run the repository secret/private-data scan before committing or copying local
+validation into a public issue comment:
+
+```bash
+PYTHONPATH=src python3 tools/repo_secret_scan.py
+```
+
+The scan reads tracked files plus untracked non-ignored candidate files. It
+performs no network or public action, and its narrow fixture allow-list is only
+for fake test data that proves other guards fail closed.
 
 ## Privacy
 

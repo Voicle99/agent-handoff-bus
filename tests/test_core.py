@@ -532,6 +532,66 @@ class HandoffBusTests(unittest.TestCase):
             self.assertIn("openai_api_key", payload["sensitive_scan_hits"])
             self.assertEqual(payload["private_data_hits"][0]["kind"], "personal_local_path")
 
+    def test_repo_secret_scan_passes_current_repo_with_fake_fixtures(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/repo_secret_scan.py",
+                "--root",
+                ".",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "PASS")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertGreaterEqual(payload["scanned_files"], 1)
+        self.assertGreaterEqual(len(payload["allowed_fixture_hits"]), 1)
+
+    def test_repo_secret_scan_blocks_untracked_secret_or_private_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            subprocess.run(
+                ["git", "init"],
+                cwd=root,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True,
+            )
+            (root / "leak.txt").write_text(
+                "Do not commit sk-" + "a" * 30 + " or /Users/bob/private.log\n",
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/repo_secret_scan.py",
+                    "--root",
+                    str(root),
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 3, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "BLOCKED_SECRET_OR_PRIVATE_DATA")
+            self.assertFalse(payload["public_action_taken"])
+            self.assertEqual(payload["candidate_files"], 1)
+            kinds = {finding["kind"] for finding in payload["findings"]}
+            self.assertIn("openai_api_key", kinds)
+            self.assertIn("personal_local_path", kinds)
+
     def test_service_template_guard_passes_current_examples(self) -> None:
         result = subprocess.run(
             [
@@ -762,6 +822,8 @@ class HandoffBusTests(unittest.TestCase):
                 "--check",
                 "handoff_policy",
                 "--check",
+                "repo_secret_scan",
+                "--check",
                 "release_notes",
             ],
             env={**os.environ, "PYTHONPATH": "src"},
@@ -777,7 +839,7 @@ class HandoffBusTests(unittest.TestCase):
         self.assertFalse(payload["public_action_taken"])
         self.assertEqual(
             [check["name"] for check in payload["checks"]],
-            ["worktree_health", "docs_link", "service_template", "handoff_policy", "release_notes"],
+            ["worktree_health", "docs_link", "service_template", "handoff_policy", "repo_secret_scan", "release_notes"],
         )
 
     def test_maintainer_check_writes_output_receipt(self) -> None:

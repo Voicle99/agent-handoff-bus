@@ -661,11 +661,6 @@ Each entry should include:
 - Result: maintainer-check receipts now include a `public_summary` field that omits local paths and raw commands, so maintainers can quote validation evidence without exposing local checkout details or implying that the receipt itself performed public actions.
 - Next action: keep full maintainer-check receipts local; quote only `public_summary` in issue comments.
 
-## Earlier baseline
-
-- Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, CI workflow, roadmap, contributing guide, and security policy.
-- Follow-up hardening added HTTP API tests, reliable-send timeout behavior, and maintainer gate coverage.
-
 ## 2026-06-29 — reusable local repo secret scan
 
 - Category: safety boundary and recurring maintainer gate reliability
@@ -700,3 +695,27 @@ Each entry should include:
   - GitHub Actions matrix for Python 3.10, 3.11, and 3.12 after push
 - Result: maintainers now have a dependency-free, JSON-emitting local repo scan for tracked files and untracked non-ignored candidate files. The scan avoids quoting values, keeps public actions false, and has a narrow tested allowance for fake private-path fixtures used to prove fail-closed guards.
 - Next action: keep this scan a local guardrail only; do not treat it as credential approval, release approval, or a replacement for Bumblebee and human review.
+
+## 2026-06-30 — maintenance log chronology cleanup
+
+- Category: maintainer workflow documentation
+- Issue: #22, `Keep maintenance log chronology clear`
+- Changed files:
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py --output <artifact-json>`
+  - `PYTHONPATH=src python3 tools/repo_secret_scan.py`
+  - `git diff --check`
+  - `bumblebee version`
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+- Result: dated maintenance entries now stay together above the `Earlier baseline` summary, so daily maintainers can read the newest activity without mistaking the baseline summary for the end of current history.
+- Next action: keep future dated entries above the baseline summary and avoid touching the log for cosmetic churn.
+
+## Earlier baseline
+
+- Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, roadmap, contributing guide, and security policy.
+- Follow-up hardening added the first CI workflow, HTTP API tests, reliable-send timeout behavior, and maintainer gate coverage.

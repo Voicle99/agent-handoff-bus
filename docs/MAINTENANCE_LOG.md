@@ -715,6 +715,28 @@ Each entry should include:
 - Result: dated maintenance entries now stay together above the `Earlier baseline` summary, so daily maintainers can read the newest activity without mistaking the baseline summary for the end of current history.
 - Next action: keep future dated entries above the baseline summary and avoid touching the log for cosmetic churn.
 
+## 2026-07-05 — high-risk wording fails closed
+
+- Category: safety boundary
+- Issue: #23, `Fail closed on high-risk without-approval wording`
+- Changed files:
+  - `tools/handoff_policy_check.py`
+  - `tests/test_core.py`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/handoff_policy_check.py --body "Publish a release and upload the package without approval."`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py --output <artifact-json>`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/repo_secret_scan.py`
+  - `git diff --check`
+  - `bumblebee version`
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+- Result: the local high-risk handoff policy checker no longer treats bare `without approval` as a safe negation, so imperative text such as publishing a release or uploading a package without approval fails closed until exact high-risk approval is supplied.
+- Next action: keep negation hints narrow; high-risk public, release, package, paid, OAuth, account, credential, and deployment requests should fail closed unless the text is explicitly phrased as a prohibition or has exact approval.
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, roadmap, contributing guide, and security policy.

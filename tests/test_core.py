@@ -985,6 +985,27 @@ class HandoffBusTests(unittest.TestCase):
         self.assertFalse(payload["public_action_taken"])
         self.assertEqual(payload["risk_hits"][0]["kind"], "public_action")
 
+    def test_handoff_policy_check_blocks_imperative_without_approval_wording(self) -> None:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "tools/handoff_policy_check.py",
+                "--body",
+                "Publish a release and upload the package without approval.",
+            ],
+            env={**os.environ, "PYTHONPATH": "src"},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=10,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 4, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertEqual(payload["status"], "BLOCKED_HIGH_RISK_HANDOFF_REQUIRES_APPROVAL")
+        self.assertFalse(payload["public_action_taken"])
+        self.assertEqual(payload["risk_hits"][0]["kind"], "public_action")
+
     def test_handoff_policy_check_passes_high_risk_with_exact_approval(self) -> None:
         result = subprocess.run(
             [

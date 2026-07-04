@@ -31,7 +31,8 @@ NEGATION_HINTS = (
     "no paid action",
     "not authorized",
     "not allowed",
-    "without approval",
+    # Do not include bare "without approval": "publish without approval" must
+    # still fail closed as a high-risk request.
     "requires approval",
     "human-gated",
     "human gated",

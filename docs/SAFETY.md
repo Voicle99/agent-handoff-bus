@@ -36,6 +36,11 @@ That scan performs no public action and reports only file, line, and finding
 kind. It complements, but does not replace, human review or external security
 scanners such as Bumblebee.
 
+Local MCP configuration files such as `.mcp.json` can contain bearer tokens,
+personal filesystem paths, or machine-specific server settings. Keep them out
+of handoff text and public validation notes. The repository ignores `.mcp.json`
+by default so maintainers do not accidentally stage a local connector config.
+
 ### Scanner limits
 
 Known false-positive cases:

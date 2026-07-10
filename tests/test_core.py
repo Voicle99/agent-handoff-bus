@@ -592,6 +592,10 @@ class HandoffBusTests(unittest.TestCase):
             self.assertIn("openai_api_key", kinds)
             self.assertIn("personal_local_path", kinds)
 
+    def test_gitignore_excludes_local_mcp_config(self) -> None:
+        gitignore = Path(".gitignore").read_text(encoding="utf-8").splitlines()
+        self.assertIn(".mcp.json", gitignore)
+
     def test_service_template_guard_passes_current_examples(self) -> None:
         result = subprocess.run(
             [

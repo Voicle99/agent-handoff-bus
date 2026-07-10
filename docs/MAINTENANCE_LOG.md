@@ -737,6 +737,28 @@ Each entry should include:
 - Result: the local high-risk handoff policy checker no longer treats bare `without approval` as a safe negation, so imperative text such as publishing a release or uploading a package without approval fails closed until exact high-risk approval is supplied.
 - Next action: keep negation hints narrow; high-risk public, release, package, paid, OAuth, account, credential, and deployment requests should fail closed unless the text is explicitly phrased as a prohibition or has exact approval.
 
+## 2026-07-11 — local MCP config ignored
+
+- Category: safety boundary and maintainer workflow
+- Issue: #24, `Ignore local MCP connector config`
+- Changed files:
+  - `.gitignore`
+  - `docs/SAFETY.md`
+  - `tests/test_core.py`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/repo_secret_scan.py`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py --output <artifact-json>`
+  - `git diff --check`
+  - `bumblebee version`
+  - `bumblebee selftest`
+  - `bumblebee scan --root . --emit-summary`
+- Result: local `.mcp.json` connector configs are ignored by default and safety docs now call out that MCP config can contain bearer tokens, personal paths, or machine-specific settings.
+- Next action: keep local connector configs outside public validation text and quarantine any already-created private config before public repo actions.
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, roadmap, contributing guide, and security policy.

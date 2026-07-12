@@ -40,6 +40,9 @@ Local MCP configuration files such as `.mcp.json` can contain bearer tokens,
 personal filesystem paths, or machine-specific server settings. Keep them out
 of handoff text and public validation notes. The repository ignores `.mcp.json`
 by default so maintainers do not accidentally stage a local connector config.
+The local repo secret scan still treats `.mcp.json` as a sensitive ignored
+candidate and fails closed if it is present, so maintainers can quarantine it
+before publishing validation evidence.
 
 ### Scanner limits
 

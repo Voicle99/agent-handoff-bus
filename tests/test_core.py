@@ -596,6 +596,45 @@ class HandoffBusTests(unittest.TestCase):
         gitignore = Path(".gitignore").read_text(encoding="utf-8").splitlines()
         self.assertIn(".mcp.json", gitignore)
 
+    def test_repo_secret_scan_blocks_ignored_local_mcp_config(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            subprocess.run(
+                ["git", "init"],
+                cwd=root,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                check=True,
+            )
+            (root / ".gitignore").write_text(".mcp.json\n", encoding="utf-8")
+            (root / ".mcp.json").write_text(
+                '{"mcpServers":{"local":{"headers":{"Authorization":"Bearer '
+                + "a" * 40
+                + '"}}}}\n',
+                encoding="utf-8",
+            )
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "tools/repo_secret_scan.py",
+                    "--root",
+                    str(root),
+                ],
+                env={**os.environ, "PYTHONPATH": "src"},
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 3, result.stderr)
+            payload = json.loads(result.stdout)
+            self.assertEqual(payload["status"], "BLOCKED_SECRET_OR_PRIVATE_DATA")
+            self.assertFalse(payload["public_action_taken"])
+            self.assertIn(".mcp.json", payload["sensitive_ignored_files"])
+            self.assertTrue(any(finding["file"] == ".mcp.json" for finding in payload["findings"]))
+
     def test_service_template_guard_passes_current_examples(self) -> None:
         result = subprocess.run(
             [

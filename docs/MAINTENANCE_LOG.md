@@ -759,6 +759,24 @@ Each entry should include:
 - Result: local `.mcp.json` connector configs are ignored by default and safety docs now call out that MCP config can contain bearer tokens, personal paths, or machine-specific settings.
 - Next action: keep local connector configs outside public validation text and quarantine any already-created private config before public repo actions.
 
+## 2026-07-13 — ignored MCP config scan fails closed
+
+- Category: safety boundary and recurring maintainer gate reliability
+- Issue: #25, `Fail closed on ignored local MCP config in repo secret scan`
+- Changed files:
+  - `tools/repo_secret_scan.py`
+  - `tests/test_core.py`
+  - `docs/SAFETY.md`
+  - `docs/MAINTENANCE_LOG.md`
+- Verification:
+  - `PYTHONPATH=src python3 tools/repo_secret_scan.py --root <fixture>` blocks ignored `.mcp.json` with `BLOCKED_SECRET_OR_PRIVATE_DATA`
+  - `python3 -m py_compile src/agent_handoff_bus/*.py tests/*.py tools/*.py`
+  - `PYTHONPATH=src python3 -m unittest discover -s tests -v`
+  - `PYTHONPATH=src python3 tools/docs_link_check.py`
+  - `PYTHONPATH=src python3 tools/maintainer_check.py --output <artifact-json>`
+- Result: ignored local MCP connector configs are still excluded from git commits, but the local repo secret scan now fails closed when a sensitive ignored `.mcp.json` exists in the checkout.
+- Next action: keep the sensitive ignored filename list narrow and local-only; do not expand it into broad ignored-file scanning without evidence of another recurring secret-bearing config.
+
 ## Earlier baseline
 
 - Initial public release established the local-first handoff bus, dependency-free Python package, safety model, MIT license, roadmap, contributing guide, and security policy.

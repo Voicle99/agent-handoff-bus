@@ -36,6 +36,12 @@ ALLOWED_FIXTURE_PRIVATE_PATHS = {
     )
 }
 
+# Some local-only config files are intentionally ignored by git because they can
+# contain machine-specific connector URLs, bearer tokens, or personal paths.
+# Ignoring them prevents accidental commits, but the maintainer scan should still
+# fail closed if those files are present in the checkout. Keep this list narrow.
+SENSITIVE_IGNORED_FILENAMES = (".mcp.json",)
+
 
 def _json_dumps(payload: dict[str, Any]) -> str:
     return json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True)
@@ -56,6 +62,16 @@ def _git_files(root: Path, include_untracked: bool) -> list[str]:
     if result.returncode != 0:
         raise RuntimeError(result.stderr.strip() or "git ls-files failed")
     return sorted(path for path in result.stdout.splitlines() if path)
+
+
+
+def _sensitive_ignored_files(root: Path, existing_paths: set[str]) -> list[str]:
+    paths: list[str] = []
+    for rel_path in SENSITIVE_IGNORED_FILENAMES:
+        path = root / rel_path
+        if path.is_file() and rel_path not in existing_paths:
+            paths.append(rel_path)
+    return paths
 
 
 def _line_number(text: str, offset: int) -> int:
@@ -107,6 +123,10 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
 
     try:
         candidate_paths = _git_files(root, include_untracked=not args.tracked_only)
+        sensitive_ignored_paths: list[str] = []
+        if not args.tracked_only:
+            sensitive_ignored_paths = _sensitive_ignored_files(root, set(candidate_paths))
+            candidate_paths = sorted([*candidate_paths, *sensitive_ignored_paths])
     except (OSError, RuntimeError, subprocess.SubprocessError) as exc:
         return 2, {
             "status": "ERROR",
@@ -145,20 +165,21 @@ def run(args: argparse.Namespace) -> tuple[int, dict[str, Any]]:
         "scanned_files": scanned_files,
         "skipped_binary_files": skipped_binary,
         "allowed_fixture_hits": allowed_fixture_hits,
+        "sensitive_ignored_files": sensitive_ignored_paths,
         "public_action_taken": False,
     }
     if findings:
         return 3, {
             **base,
             "status": "BLOCKED_SECRET_OR_PRIVATE_DATA",
-            "summary": "tracked or untracked candidate files contain secret-like or private material",
+            "summary": "tracked, untracked, or sensitive ignored candidate files contain secret-like or private material",
             "findings": findings,
             "next_action": "Remove real secrets/private data or add a narrow fake fixture allowance with tests.",
         }
     return 0, {
         **base,
         "status": "PASS",
-        "summary": "tracked and untracked candidate files contain no high-confidence secret/private findings",
+        "summary": "tracked, untracked, and sensitive ignored candidate files contain no high-confidence secret/private findings",
         "next_action": "Use this as one local gate; Bumblebee and human review are still separate checks.",
     }
 
